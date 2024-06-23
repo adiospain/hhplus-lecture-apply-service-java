@@ -46,3 +46,68 @@
 
 - 정확하게 30명의 사용자에게만 특강을 제공할 방법을 고민해 봅니다.
 - 같은 사용자에게 여러 번의 특강 슬롯이 제공되지 않도록 제한할 방법을 고민해 봅니다.
+
+---
+
+## Entity Relationship Diagram
+```mermaid
+---
+title : 특강 신청 서비스
+---
+erDiagram
+    STUDENT {
+        id bigint PK "학생 ID"
+        name varchar "학생 이름"
+    }
+    LECTURE {
+        id bigint PK "특강 ID"
+        name varchar "특강 이름"
+        capacity int "수강 인원"
+        open_at timestamp "열리는 날짜"
+    }
+    USER_LECTURE {
+        user_id bigint FK "학생 ID"
+        lecture_id bigint FK "특강 ID"
+        enrollment bool "수강 여부"
+        apply_at timestamp "신청 시간"
+    }
+    
+    STUDENT ||--o{ STUDENT_LECTURE : apply
+    STUDENT_LECTURE }o--|| LECTURE : attends
+```
+최대한 적은 테이블과 필드 개수로 설계 했습니다.
+- 장점
+  - 데이터 중복 최소화
+    - 저장 공간 절약
+  - 데이터 무결성 유지
+    - 외래 키 사용
+  - 유연성과 확장성
+    - 새로운 학생 / 특강이 추가 될 때 새로운 관계를 추가함으로써 확장 가능
+- 단점
+  - 쿼리 복잡성
+    -  단순한 쿼리보다 조인을 사용해야 하므로 쿼리 복잡성이 증가
+  - 동시성 문제
+    - ~~여러 트랜잭션이 중간테이블에 동시에 삽입/삭제/업데이트 시 일관성 유지 어려움~~
+      - 명세에서는 학생이 특강을 취소하는 경우를 고려하지 않음
+      - 삽입만 고려하면 됨
+## Note
+✅TEST : Add 'LectureControllerTest' for applyLecture feature
+✨FEAT : Implement `LectureController` `applyLecture` method
+- `ApplyLectureCommand`DTO로 Service Layer 전달.
+- `ApplyLectureAPIResponse`로 응답값을 매핑.
+- `ApplyLectureUseCase`의 구현체를 어떻게 네이밍 할지 고민.
+  - `ApplyLectureService` or `ApplyLectureUseCaseImpl`
+
+✅TEST : Add 'ApplyLectureServiceTest'
+- 결국 `ApplyLectureService`로 결정.
+
+🎨REFACTOR : Add `LectureService` to handle the application logic and interact with `ApplyLectureUseCase`
+- 추후 서비스 될 수 있는 기능을 `UseCase`에 추가하고 실제로 서비스 되는 기능을 `Service`에 추가하는 설계(?).
+
+✨FEAT : Update concurrency for applyLecture execute
+-  when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture))
+  이미 appyLecture 메서드를 호출하기 전에 리턴 대상(`Optional.of(lecture)`)을 지정해주는데
+  어떻게 applyLecutureUseCase 내에서 수강인원이 줄어드는 lecture를 리턴하는 걸까?
+
+🔬SCOPE : Update concurrency for applyLecture execute using pessimistic locking
+- 메서드에서 임계 구간을 지정하기 보다 JPA 어노테이션으로 비관락을 설정.
