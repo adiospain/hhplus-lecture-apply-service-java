@@ -79,52 +79,98 @@ public class ApplyLectureUseCaseTest {
     }
 
     @Test
-    @DisplayName("특강 신청 동시성 31명")
-    void applyLectureServiceConcurrency() throws InterruptedException {
-
-        long userId = 21L;
+    @DisplayName("특강 신청 동시성 테스트 : 동시적이 아닌 순차적으로 실행")
+    void applyLectureServiceSequential() throws InterruptedException {
+        //given
+        long userId = 1L;
         long lectureId = 10L;
+        int trial = 36;
 
-        int trial = 31;
         ExecutorService executorService =Executors.newFixedThreadPool(trial);
         CountDownLatch latch = new CountDownLatch(trial);
         List<Future<ApplyLectureAPIResponse>> futures = new ArrayList<>();
-
         LectureJpaEntity lecture = new LectureJpaEntity(lectureId, "클린아키텍처", 30, LocalDateTime.of(2024,4,27,13,0), new HashSet<>());
+
+        //when
+        when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
+        when(userRepository.findById(anyLong())).thenAnswer(invocation ->{
+            long id = invocation.getArgument(0);
+            return Optional.of(new StudentJpaEntity(id, "정현우"+id, new HashSet<>()));
+        });
+        when(lectureRepository.save(any(LectureJpaEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
         long longTrial = (long) trial;
         for (long i = userId; i < userId + longTrial; ++i){
             ApplyLectureCommand command = ApplyLectureCommand.builder()
                     .userId(i)
                     .lectureId(lectureId)
                     .build();
-            StudentJpaEntity user = new StudentJpaEntity(i, "정현우"+i, new HashSet<>());
-            when(lectureRepository.findById(anyLong())).thenReturn(Optional.of(lecture));
-            when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
-            when(lectureRepository.save(any(LectureJpaEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            ApplyLectureAPIResponse response = applyLectureUseCase.execute(command);
+            if (response.userId() >= userId + 30){
+                assertThat(response.success()).isFalse();
+            }
+            else {
+                assertThat(response.success()).isTrue();
+            }
+        }
+    }
+
+    @Test
+    @DisplayName("특강 신청 동시성 테스트 : 31명 부터는 실패")
+    void applyLectureServiceConcurrency() throws InterruptedException {
+        //given
+        long userId = 1L;
+        long lectureId = 10L;
+        int trial = 40;
+
+        ExecutorService executorService =Executors.newFixedThreadPool(trial);
+        CountDownLatch latch = new CountDownLatch(trial);
+        List<Future<ApplyLectureAPIResponse>> futures = new ArrayList<>();
+        LectureJpaEntity lecture = new LectureJpaEntity(lectureId, "클린아키텍처", 30, LocalDateTime.of(2024,4,27,13,0), new HashSet<>());
+
+        //when
+        when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
+        when(userRepository.findById(anyLong())).thenAnswer(invocation ->{
+            long id = invocation.getArgument(0);
+            return Optional.of(new StudentJpaEntity(id, "정현우"+id, new HashSet<>()));
+        });
+        when(lectureRepository.save(any(LectureJpaEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        for (long i = userId; i < userId + trial; ++i){
+            ApplyLectureCommand command = ApplyLectureCommand.builder()
+                    .userId(i)
+                    .lectureId(lectureId)
+                    .build();
 
             Future<ApplyLectureAPIResponse> future =
             executorService.submit(()-> applyLectureUseCase.execute(command));
             futures.add(future);
         }
-        for (Future<ApplyLectureAPIResponse> future : futures) {
+
+        //then
+        futures.stream().forEach(future ->{
             try {
-                ApplyLectureAPIResponse result = future.get();
-                assertThat(result.success()).isTrue();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
+                ApplyLectureAPIResponse response = future.get();
+                System.out.println(response.userId());
+                if (response.userId() >= userId + 30){
+                    assertThat(response.success()).isFalse();
+                }
+                else {
+                    assertThat(response.success()).isTrue();
+                }
+            } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             }
             finally {
                 latch.countDown();
             }
-        }
+        });
         latch.await();
         executorService.shutdown();
     }
 
     @Test
-    @DisplayName("특강 신청 동시성 31명")
+    @DisplayName("특강 신청 동시성 30명")
     void applyLectureServiceConcurrencySecond() throws InterruptedException {
 
         long userId = 21L;
@@ -138,6 +184,9 @@ public class ApplyLectureUseCaseTest {
         }
         LectureJpaEntity lecture = new LectureJpaEntity(lectureId, "클린아키텍처", 0, LocalDateTime.of(2024,4,27,13,0), new HashSet<>());
 
+        when(lectureRepository.findById(anyLong())).thenReturn(Optional.of(lecture));
+
+
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (StudentJpaEntity user : users){
             CompletableFuture<Void> future = CompletableFuture.runAsync(()->{
@@ -145,7 +194,6 @@ public class ApplyLectureUseCaseTest {
                         .userId(user.getId())
                         .lectureId(lectureId)
                         .build();
-                when(lectureRepository.findById(anyLong())).thenReturn(Optional.of(lecture));
                 when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
                 applyLectureUseCase.execute(command);
             });

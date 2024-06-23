@@ -12,6 +12,7 @@ import io.hhplus.lecture_apply_service.infrastructure.repository.jpa.StudentJpaR
 import io.hhplus.lecture_apply_service.presentation.dto.res.ApplyLectureAPIResponse;
 import io.hhplus.lecture_apply_service.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.Semaphore;
 
@@ -28,15 +29,15 @@ public class ApplyLectureUseCaseImpl implements ApplyLectureUseCase {
     private final Semaphore semaphore = new Semaphore(1);
 
     @Override
+    @Transactional
     public ApplyLectureAPIResponse execute(ApplyLectureCommand command) {
         try{
-            semaphore.acquire();
-
+            //semaphore.acquire();
             LectureJpaEntity lectureJpaEntity = lectureRepository.findById(command.getLectureId())
                     .orElseThrow(()->
                             new CustomException(ErrorCode.INVALID_LECTURE_ID));
-            if (lectureJpaEntity.getCapacity() == 0){
-                return new ApplyLectureAPIResponse(command.getUserId(), command.getUserId(), false);
+            if (lectureJpaEntity.getCapacity() <= 0){
+                return new ApplyLectureAPIResponse(command.getUserId(), command.getLectureId(), false);
             }
 
             StudentJpaEntity userJpaEntity = userRepository.findById(command.getUserId())
@@ -48,10 +49,10 @@ public class ApplyLectureUseCaseImpl implements ApplyLectureUseCase {
             StudentLectureJpaEntity userLecture = new StudentLectureJpaEntity(userJpaEntity, lectureJpaEntity);
             studentLectureRepository.save(userLecture);
             return new ApplyLectureAPIResponse(command.getUserId(), command.getLectureId(), true);
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }finally {
-            semaphore.release();
+            //semaphore.release();
         }
 
     }
