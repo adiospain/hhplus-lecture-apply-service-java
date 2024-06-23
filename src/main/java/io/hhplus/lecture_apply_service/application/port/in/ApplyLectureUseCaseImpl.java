@@ -13,6 +13,8 @@ import io.hhplus.lecture_apply_service.presentation.dto.res.ApplyLectureAPIRespo
 import io.hhplus.lecture_apply_service.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 
+import java.util.concurrent.Semaphore;
+
 
 @RequiredArgsConstructor
 @UseCase
@@ -23,19 +25,34 @@ public class ApplyLectureUseCaseImpl implements ApplyLectureUseCase {
     private final StudentJpaRepository userRepository;
     private final StudentLectureJpaRepository studentLectureRepository;
 
+    private final Semaphore semaphore = new Semaphore(1);
+
     @Override
     public ApplyLectureAPIResponse execute(ApplyLectureCommand command) {
+        try{
+            semaphore.acquire();
 
-        LectureJpaEntity lectureJpaEntity = lectureRepository.findById(command.getLectureId())
-                .orElseThrow(()->
-                        new CustomException(ErrorCode.INVALID_LECTURE_ID));
-        StudentJpaEntity userJpaEntity = userRepository.findById(command.getUserId())
-                .orElseThrow(()->
-                        new CustomException(ErrorCode.INVALID_USER_ID));
+            LectureJpaEntity lectureJpaEntity = lectureRepository.findById(command.getLectureId())
+                    .orElseThrow(()->
+                            new CustomException(ErrorCode.INVALID_LECTURE_ID));
+            if (lectureJpaEntity.getCapacity() == 0){
+                return new ApplyLectureAPIResponse(command.getUserId(), command.getUserId(), false);
+            }
 
+            StudentJpaEntity userJpaEntity = userRepository.findById(command.getUserId())
+                    .orElseThrow(()->
+                            new CustomException(ErrorCode.INVALID_USER_ID));
 
-        StudentLectureJpaEntity userLecture = new StudentLectureJpaEntity(userJpaEntity, lectureJpaEntity);
-        studentLectureRepository.save(userLecture);
-        return new ApplyLectureAPIResponse(command.getUserId(), command.getUserId(), true);
+            lectureJpaEntity.setCapacity(lectureJpaEntity.getCapacity()-1);
+            lectureRepository.save(lectureJpaEntity);
+            StudentLectureJpaEntity userLecture = new StudentLectureJpaEntity(userJpaEntity, lectureJpaEntity);
+            studentLectureRepository.save(userLecture);
+            return new ApplyLectureAPIResponse(command.getUserId(), command.getLectureId(), true);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }finally {
+            semaphore.release();
+        }
+
     }
 }
