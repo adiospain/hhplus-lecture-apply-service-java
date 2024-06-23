@@ -1,4 +1,4 @@
-package io.hhplus.lecture_apply_service.domain.lecture.presentation.controller.dto.req;
+package io.hhplus.lecture_apply_service.presentation.dto.req;
 
 public record ApplyLectureAPIRequest(
         long userId,

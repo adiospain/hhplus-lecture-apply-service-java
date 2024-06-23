@@ -1,4 +1,4 @@
-package io.hhplus.lecture_apply_service.domain.lecture.application.port.in;
+package io.hhplus.lecture_apply_service.application.port.in;
 
 import lombok.Builder;
 import lombok.Getter;

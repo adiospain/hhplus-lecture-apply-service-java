@@ -2,6 +2,7 @@ package io.hhplus.lecture_apply_service.domain.lecture.application.service;
 
 import io.hhplus.lecture_apply_service.application.port.in.ApplyLectureUseCase;
 import io.hhplus.lecture_apply_service.application.port.in.ApplyLectureUseCaseImpl;
+
 import io.hhplus.lecture_apply_service.infrastructure.entity.Student;
 import io.hhplus.lecture_apply_service.infrastructure.entity.Lecture;
 import io.hhplus.lecture_apply_service.application.port.in.ApplyLectureCommand;

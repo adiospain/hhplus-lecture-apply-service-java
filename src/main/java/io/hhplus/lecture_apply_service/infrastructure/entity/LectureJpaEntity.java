@@ -1,6 +1,5 @@
-package io.hhplus.lecture_apply_service.application.port.out.persistence;
+package io.hhplus.lecture_apply_service.infrastructure.entity;
 
-import io.hhplus.lecture_apply_service.infrastructure.repository.UserLectureRepository;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,5 +23,5 @@ public class LectureJpaEntity {
     private LocalDateTime open_at;
 
     @OneToMany(mappedBy = "lecture", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<UserLectureJpaEntity> attend = new HashSet<>();
+    private Set<StudentLectureJpaEntity> attend = new HashSet<>();
 }

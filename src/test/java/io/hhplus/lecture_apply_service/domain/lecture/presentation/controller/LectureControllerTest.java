@@ -1,10 +1,11 @@
 package io.hhplus.lecture_apply_service.domain.lecture.presentation.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.hhplus.lecture_apply_service.domain.lecture.application.port.in.ApplyLectureUseCase;
-import io.hhplus.lecture_apply_service.domain.lecture.application.port.in.ApplyLectureCommand;
-import io.hhplus.lecture_apply_service.domain.lecture.presentation.controller.dto.req.ApplyLectureAPIRequest;
-import io.hhplus.lecture_apply_service.domain.lecture.presentation.controller.dto.res.ApplyLectureAPIResponse;
+import io.hhplus.lecture_apply_service.application.port.in.ApplyLectureUseCase;
+import io.hhplus.lecture_apply_service.application.port.in.ApplyLectureCommand;
+import io.hhplus.lecture_apply_service.presentation.dto.LectureController;
+import io.hhplus.lecture_apply_service.presentation.dto.req.ApplyLectureAPIRequest;
+import io.hhplus.lecture_apply_service.presentation.dto.res.ApplyLectureAPIResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,18 +41,20 @@ public class LectureControllerTest {
         Long userId = 1L;
         Long lectureId = 100L;
         boolean applySuccess = true;
-
         ApplyLectureAPIResponse APIresponse = new ApplyLectureAPIResponse(userId, lectureId, applySuccess);
+        //when
         when(applyLectureUseCase.applyLecture(any(ApplyLectureCommand.class))).thenReturn(APIresponse);
 
         ApplyLectureAPIRequest request = new ApplyLectureAPIRequest(userId, lectureId);
         mockMvc.perform(post("/lectures/apply")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
+
+        //then
                         .andExpect(status().isOk())
-                .andExpect(jsonPath("$.userId").value(userId))
-                .andExpect(jsonPath("$.lectureId").value(lectureId))
-                .andExpect(jsonPath("$.success").value(applySuccess));
+                        .andExpect(jsonPath("$.userId").value(userId))
+                        .andExpect(jsonPath("$.lectureId").value(lectureId))
+                        .andExpect(jsonPath("$.success").value(applySuccess));
     }
 
     @Test

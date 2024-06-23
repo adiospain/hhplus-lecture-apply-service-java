@@ -1,9 +1,9 @@
-package io.hhplus.lecture_apply_service.domain.lecture.presentation.controller;
+package io.hhplus.lecture_apply_service.presentation.dto;
 
-import io.hhplus.lecture_apply_service.domain.lecture.application.port.in.ApplyLectureUseCase;
-import io.hhplus.lecture_apply_service.domain.lecture.presentation.controller.dto.req.ApplyLectureAPIRequest;
-import io.hhplus.lecture_apply_service.domain.lecture.application.port.in.ApplyLectureCommand;
-import io.hhplus.lecture_apply_service.domain.lecture.presentation.controller.dto.res.ApplyLectureAPIResponse;
+import io.hhplus.lecture_apply_service.application.port.in.ApplyLectureUseCase;
+import io.hhplus.lecture_apply_service.presentation.dto.req.ApplyLectureAPIRequest;
+import io.hhplus.lecture_apply_service.application.port.in.ApplyLectureCommand;
+import io.hhplus.lecture_apply_service.presentation.dto.res.ApplyLectureAPIResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
