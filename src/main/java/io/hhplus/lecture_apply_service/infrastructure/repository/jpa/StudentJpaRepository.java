@@ -10,7 +10,4 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Optional;
 
 public interface StudentJpaRepository extends JpaRepository<StudentJpaEntity, Long> {
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select s from student b where b.id = :id")
-    Optional<StudentJpaEntity> findById (Long id);
 }

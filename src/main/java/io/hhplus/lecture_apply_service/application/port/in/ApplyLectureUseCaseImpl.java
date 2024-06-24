@@ -6,11 +6,12 @@ import io.hhplus.lecture_apply_service.infrastructure.entity.StudentLectureJpaEn
 import io.hhplus.lecture_apply_service.common.UseCase;
 import io.hhplus.lecture_apply_service.infrastructure.entity.LectureJpaEntity;
 import io.hhplus.lecture_apply_service.exception.CustomException;
-import io.hhplus.lecture_apply_service.infrastructure.repository.jpa.StudentLectureJpaRepository;
-import io.hhplus.lecture_apply_service.infrastructure.repository.jpa.LectureJpaRepository;
-import io.hhplus.lecture_apply_service.infrastructure.repository.jpa.StudentJpaRepository;
+import io.hhplus.lecture_apply_service.infrastructure.repository.LectureRepository;
+import io.hhplus.lecture_apply_service.infrastructure.repository.StudentLectureRepository;
+import io.hhplus.lecture_apply_service.infrastructure.repository.StudentRepository;
 import io.hhplus.lecture_apply_service.presentation.dto.res.ApplyLectureAPIResponse;
 import io.hhplus.lecture_apply_service.exception.ErrorCode;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,9 +23,9 @@ import java.util.concurrent.Semaphore;
 public class ApplyLectureUseCaseImpl implements ApplyLectureUseCase {
 
     private final LectureLock lectureLock;
-    private final LectureJpaRepository lectureRepository;
-    private final StudentJpaRepository studentRepository;
-    private final StudentLectureJpaRepository studentLectureRepository;
+    private final LectureRepository lectureRepository;
+    private final StudentRepository studentRepository;
+    private final StudentLectureRepository studentLectureRepository;
 
     private final Semaphore semaphore = new Semaphore(1);
 

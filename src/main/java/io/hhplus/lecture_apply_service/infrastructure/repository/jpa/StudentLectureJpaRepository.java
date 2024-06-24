@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Lock;
 
 public interface StudentLectureJpaRepository extends JpaRepository<StudentLectureJpaEntity, Long> {
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Override
-    <S extends StudentLectureJpaEntity> S save(S entity);
+
+  boolean existsByStudentIdAndLectureIdAndEnrollmentIsTrue(Long studentId, Long lectureId);
 }

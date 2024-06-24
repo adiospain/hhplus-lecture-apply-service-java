@@ -23,10 +23,13 @@ public class StudentLectureJpaEntity {
     @JoinColumn(name = "lecture_id", referencedColumnName = "id", insertable = false, updatable = false)
     private LectureJpaEntity lecture;
 
-    public StudentLectureJpaEntity(StudentJpaEntity student, LectureJpaEntity lecture){
+    private Boolean enrollment;
+
+    public StudentLectureJpaEntity(StudentJpaEntity student, LectureJpaEntity lecture, Boolean enrollment){
         this.student = student;
         this.lecture = lecture;
         this.id = new UserLectureId(student.getId(), lecture.getId());
+        this.enrollment = enrollment;
     }
 
 }
