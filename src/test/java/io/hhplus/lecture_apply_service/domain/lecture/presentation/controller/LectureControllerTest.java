@@ -52,7 +52,7 @@ public class LectureControllerTest {
 
         //then
                         .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.userId").value(userId))
+                        .andExpect(jsonPath("$.studentId").value(userId))
                         .andExpect(jsonPath("$.lectureId").value(lectureId))
                         .andExpect(jsonPath("$.success").value(applySuccess));
     }
@@ -74,7 +74,7 @@ public class LectureControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
         //then
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.userId").value(userId))
+                .andExpect(jsonPath("$.studentId").value(userId))
                 .andExpect(jsonPath("$.lectureId").value(lectureId))
                 .andExpect(jsonPath("$.success").value(applySuccess))
                 .andExpect(jsonPath("$.success").value(applySuccess));

@@ -22,7 +22,7 @@ public class LectureController {
     public ResponseEntity<ApplyLectureAPIResponse> applyLecture (@RequestBody ApplyLectureAPIRequest request)
     {
         ApplyLectureCommand command = ApplyLectureCommand.builder()
-                .userId(request.userId())
+                .studentId(request.userId())
                 .lectureId(request.lectureId())
                 .build();
 

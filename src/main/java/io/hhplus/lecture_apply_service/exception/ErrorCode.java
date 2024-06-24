@@ -12,7 +12,7 @@ public enum ErrorCode {
     //400
 
     INVALID_LECTURE_ID(BAD_REQUEST, "유효하지 않은 특강 ID 입니다."),
-    INVALID_USER_ID(BAD_REQUEST, "유효하지 않은 유저 ID 입니다."),
+    INVALID_STUDENT_ID(BAD_REQUEST, "유효하지 않은 학생 ID 입니다."),
 
     //404
 

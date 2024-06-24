@@ -23,10 +23,32 @@ public class ApplyLectureUseCaseImpl implements ApplyLectureUseCase {
 
     private final LectureLock lectureLock;
     private final LectureJpaRepository lectureRepository;
-    private final StudentJpaRepository userRepository;
+    private final StudentJpaRepository studentRepository;
     private final StudentLectureJpaRepository studentLectureRepository;
 
     private final Semaphore semaphore = new Semaphore(1);
+
+
+
+    @Transactional
+    public ApplyLectureAPIResponse executeNope(ApplyLectureCommand command) {
+        try{
+            //semaphore.acquire();
+            LectureJpaEntity lectureJpaEntity = lectureRepository.findByIdxLock(command.getLectureId())
+                .orElseThrow(()->
+                    new CustomException(ErrorCode.INVALID_LECTURE_ID));
+            if (lectureJpaEntity.getCapacity() <= 0){
+                return new ApplyLectureAPIResponse(command.getStudentId(), command.getLectureId(), false);
+            }
+            lectureJpaEntity.setCapacity(lectureJpaEntity.getCapacity()-1);
+            lectureRepository.savexLock(lectureJpaEntity);
+            return new ApplyLectureAPIResponse(command.getStudentId(), command.getLectureId(), true);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }finally {
+            //semaphore.release();
+        }
+    }
 
     @Override
     @Transactional
@@ -37,23 +59,22 @@ public class ApplyLectureUseCaseImpl implements ApplyLectureUseCase {
                     .orElseThrow(()->
                             new CustomException(ErrorCode.INVALID_LECTURE_ID));
             if (lectureJpaEntity.getCapacity() <= 0){
-                return new ApplyLectureAPIResponse(command.getUserId(), command.getLectureId(), false);
+                return new ApplyLectureAPIResponse(command.getStudentId(), command.getLectureId(), false);
             }
 
-            StudentJpaEntity userJpaEntity = userRepository.findById(command.getUserId())
+            StudentJpaEntity studentJpaEntity = studentRepository.findById(command.getStudentId())
                     .orElseThrow(()->
-                            new CustomException(ErrorCode.INVALID_USER_ID));
+                            new CustomException(ErrorCode.INVALID_STUDENT_ID));
 
             lectureJpaEntity.setCapacity(lectureJpaEntity.getCapacity()-1);
             lectureRepository.save(lectureJpaEntity);
-            StudentLectureJpaEntity userLecture = new StudentLectureJpaEntity(userJpaEntity, lectureJpaEntity);
-            studentLectureRepository.save(userLecture);
-            return new ApplyLectureAPIResponse(command.getUserId(), command.getLectureId(), true);
+            StudentLectureJpaEntity studentLecture = new StudentLectureJpaEntity(studentJpaEntity, lectureJpaEntity);
+            studentLectureRepository.save(studentLecture);
+            return new ApplyLectureAPIResponse(command.getStudentId(), command.getLectureId(), true);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }finally {
             //semaphore.release();
         }
-
     }
 }

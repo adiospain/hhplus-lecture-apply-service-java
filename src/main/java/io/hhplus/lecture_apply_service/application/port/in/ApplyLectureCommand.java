@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public class ApplyLectureCommand {
 
-    private Long userId;
+    private Long studentId;
     private Long lectureId;
 
 }
