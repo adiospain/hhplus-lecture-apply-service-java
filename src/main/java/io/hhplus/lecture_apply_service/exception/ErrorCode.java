@@ -13,6 +13,7 @@ public enum ErrorCode {
 
     INVALID_LECTURE_ID(BAD_REQUEST, "유효하지 않은 특강 ID 입니다."),
     INVALID_STUDENT_ID(BAD_REQUEST, "유효하지 않은 학생 ID 입니다."),
+    INVALID_TIME(BAD_REQUEST, "특강 신청 기간이 아닙니다."),
 
     //404
 
@@ -21,7 +22,8 @@ public enum ErrorCode {
 
     //500
 
-    DUMMY(BAD_REQUEST, "Dummy");
+    DUMMY(BAD_REQUEST, "Dummy"), ALREADY_APPLIED(BAD_REQUEST, "해당 특강을 이미 수강하고 있습니다.");
+
     private final HttpStatus httpStatus;
     private final String message;
 
