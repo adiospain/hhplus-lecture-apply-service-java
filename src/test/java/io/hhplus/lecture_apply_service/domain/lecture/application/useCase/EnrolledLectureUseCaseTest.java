@@ -27,9 +27,9 @@ public class EnrolledLectureUseCaseTest {
       StudentLectureRepository.class);
   private EnrolledLectureUseCase checkLectureEnrollmentUseCase = new EnrolledLectureUseCaseImpl(studentLectureRepository);
 
-  private List<StudentJpaEntity> students;
-  private List<LectureJpaEntity> lectures;
-  private List<StudentLectureJpaEntity> studentLectures;
+  private List<Student> students;
+  private List<Lecture> lectures;
+  private List<StudentLecture> studentLectures;
 
   @BeforeEach
   void setUp() {
@@ -38,15 +38,15 @@ public class EnrolledLectureUseCaseTest {
     studentLectures = new ArrayList<>();
 
     for (int i = 1; i < 40; ++i) {
-      StudentJpaEntity student = new StudentJpaEntity((long) i, "정현우" + i, new HashSet<>());
+      Student student = new Student((long) i, "정현우" + i, new HashSet<>());
       students.add(student);
     }
     for (int i=1; i < 35; ++i){
-      LectureJpaEntity lecture = new LectureJpaEntity((long)i, "클린 아키텍처"+i, i-1, LocalDateTime.of(2024,4,27,13,0) ,new HashSet<>());
+      Lecture lecture = new Lecture((long)i, "클린 아키텍처"+i, i-1, LocalDateTime.of(2024,4,27,13,0) ,new HashSet<>());
       lectures.add(lecture);
     }
     for (int i = 0; i < 10; ++i){
-      StudentLectureJpaEntity studentLecture = new StudentLectureJpaEntity(students.get(i), lectures.get(i), i % 2 == 0);
+      StudentLecture studentLecture = new StudentLecture(students.get(i), lectures.get(i), i % 2 == 0);
       studentLectures.add(studentLecture);
     }
   }
@@ -54,8 +54,8 @@ public class EnrolledLectureUseCaseTest {
   @DisplayName("강의 신청 완료 여부 확인 테스트, 수강 성공")
   public void checkLectureEnrollment_success() {
     //Given
-    StudentJpaEntity student = students.get(5);
-    List<StudentLectureJpaEntity> filtered = studentLectures.stream()
+    Student student = students.get(5);
+    List<StudentLecture> filtered = studentLectures.stream()
             .filter(studentLecture -> studentLecture.getStudent().getId().equals(student.getId()))
             .collect(Collectors.toList());
 
@@ -71,7 +71,7 @@ public class EnrolledLectureUseCaseTest {
   @DisplayName("강의 신청 완료 여부 확인 테스트, 수강 실패")
   public void checkLectureEnrollment_fail() {
     //Given
-    StudentJpaEntity student = students.get(2);
+    Student student = students.get(2);
     when(studentLectureRepository.findAllByStudentId(student.getId())).thenReturn(List.of());
 
     EnrolledLectureAPIResponse response = checkLectureEnrollmentUseCase.execute(student.getId());

@@ -14,7 +14,7 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class LectureJpaEntity {
+public class Lecture {
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,5 +23,5 @@ public class LectureJpaEntity {
     private LocalDateTime open_at;
 
     @OneToMany(mappedBy = "lecture", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<StudentLectureJpaEntity> attend = new HashSet<>();
+    private Set<StudentLecture> attend = new HashSet<>();
 }

@@ -7,16 +7,16 @@ import java.io.Serializable;
 
 @Embeddable
 public class UserLectureId implements Serializable {
-    @Column(name = "user_id")
-    private Long userId;
+    @Column(name = "student_id")
+    private Long studentId;
 
     @Column(name = "lecture_id")
     private Long lectureId;
     public UserLectureId() {
     }
     // Constructor
-    public UserLectureId (Long userId, Long lectureId) {
-        this.userId = userId;
+    public UserLectureId (Long studentId, Long lectureId) {
+        this.studentId = studentId;
         this.lectureId = lectureId;
     }
 }

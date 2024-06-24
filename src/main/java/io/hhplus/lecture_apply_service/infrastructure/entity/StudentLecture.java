@@ -11,21 +11,21 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class StudentLectureJpaEntity {
+public class StudentLecture {
     @EmbeddedId
     private UserLectureId id;
 
     @ManyToOne
     @JoinColumn(name = "student_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private StudentJpaEntity student;
+    private Student student;
 
     @ManyToOne
     @JoinColumn(name = "lecture_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private LectureJpaEntity lecture;
+    private Lecture lecture;
 
     private Boolean enrollment;
 
-    public StudentLectureJpaEntity(StudentJpaEntity student, LectureJpaEntity lecture, Boolean enrollment){
+    public StudentLecture(Student student, Lecture lecture, Boolean enrollment){
         this.student = student;
         this.lecture = lecture;
         this.id = new UserLectureId(student.getId(), lecture.getId());

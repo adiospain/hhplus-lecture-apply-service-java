@@ -1,11 +1,11 @@
 package io.hhplus.lecture_apply_service.infrastructure.repository;
 
-import io.hhplus.lecture_apply_service.infrastructure.entity.StudentLectureJpaEntity;
+import io.hhplus.lecture_apply_service.infrastructure.entity.StudentLecture;
 import java.util.List;
 public interface StudentLectureRepository {
-  StudentLectureJpaEntity save (StudentLectureJpaEntity lecture);
+  StudentLecture save (StudentLecture lecture);
 
   boolean existsByStudentIdAndLectureIdAndEnrollmentIsTrue(Long studentId, Long lectureId);
 
-  List<StudentLectureJpaEntity> findAllByStudentId(Long studentId);
+  List<StudentLecture> findAllByStudentId(Long studentId);
 }

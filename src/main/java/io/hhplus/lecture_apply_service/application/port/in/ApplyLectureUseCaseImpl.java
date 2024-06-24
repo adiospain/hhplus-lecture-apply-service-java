@@ -14,6 +14,8 @@ import io.hhplus.lecture_apply_service.presentation.dto.res.ApplyLectureAPIRespo
 import io.hhplus.lecture_apply_service.exception.ErrorCode;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
+
 
 
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class ApplyLectureUseCaseImpl implements ApplyLectureUseCase {
     private final StudentRepository studentRepository;
     private final StudentLectureRepository studentLectureRepository;
 
+    @Transactional
     @Override
     public ApplyLectureAPIResponse execute (ApplyLectureCommand command) {
       //유효한 학생ID 확인

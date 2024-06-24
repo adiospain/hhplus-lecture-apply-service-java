@@ -41,15 +41,17 @@ public class LectureController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping
+    public ResponseEntity<ListLectureAPIResponse> listLecture(){
+        ListLectureAPIResponse response = listLectureUseCase.execute();
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/application/{userId}")
     public ResponseEntity<EnrolledLectureAPIResponse> checkLectureEnrollment(@PathVariable Long userId) {
         EnrolledLectureAPIResponse response = checkLectureEnrollmentUseCase.execute(userId);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping
-    public ResponseEntity<ListLectureAPIResponse> listLecture(){
-        ListLectureAPIResponse response = listLectureUseCase.execute();
-        return ResponseEntity.ok(response);
-    }
+
 }
