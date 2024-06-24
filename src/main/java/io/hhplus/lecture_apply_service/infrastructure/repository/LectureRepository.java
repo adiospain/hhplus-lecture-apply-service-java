@@ -1,6 +1,7 @@
 package io.hhplus.lecture_apply_service.infrastructure.repository;
 
 import io.hhplus.lecture_apply_service.infrastructure.entity.LectureJpaEntity;
+import java.util.List;
 import java.util.Optional;
 
 public interface LectureRepository {
@@ -11,4 +12,6 @@ public interface LectureRepository {
     Optional<LectureJpaEntity> findByIdxLock(Long lectureId);
 
     LectureJpaEntity savexLock(LectureJpaEntity lectureJpaEntity);
+
+    List<LectureJpaEntity> findAll();
 }
