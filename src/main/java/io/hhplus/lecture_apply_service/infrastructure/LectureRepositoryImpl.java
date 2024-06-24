@@ -1,6 +1,6 @@
 package io.hhplus.lecture_apply_service.infrastructure;
 
-import io.hhplus.lecture_apply_service.infrastructure.entity.LectureJpaEntity;
+import io.hhplus.lecture_apply_service.infrastructure.entity.Lecture;
 import io.hhplus.lecture_apply_service.infrastructure.repository.LectureRepository;
 import io.hhplus.lecture_apply_service.infrastructure.repository.jpa.LectureJpaRepository;
 import java.util.List;
@@ -15,27 +15,27 @@ public class LectureRepositoryImpl implements LectureRepository {
   private final LectureJpaRepository lectureRepository;
 
   @Override
-  public Optional<LectureJpaEntity> findById(Long lectureId) {
+  public Optional<Lecture> findById(Long lectureId) {
     return lectureRepository.findById(lectureId);
   }
 
   @Override
-  public LectureJpaEntity save(LectureJpaEntity lecture) {
+  public Lecture save(Lecture lecture) {
     return lectureRepository.save(lecture);
   }
 
   @Override
-  public Optional<LectureJpaEntity> findByIdxLock(Long lectureId) {
+  public Optional<Lecture> findByIdxLock(Long lectureId) {
     return lectureRepository.findByIdxLock(lectureId);
   }
 
   @Override
-  public LectureJpaEntity savexLock(LectureJpaEntity lecture) {
+  public Lecture savexLock(Lecture lecture) {
     return lectureRepository.savexLock(lecture);
   }
 
   @Override
-  public List<LectureJpaEntity> findAll() {
+  public List<Lecture> findAll() {
     return lectureRepository.findAll();
   }
 }

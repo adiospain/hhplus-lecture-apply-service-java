@@ -1,17 +1,17 @@
 package io.hhplus.lecture_apply_service.infrastructure.repository;
 
-import io.hhplus.lecture_apply_service.infrastructure.entity.LectureJpaEntity;
+import io.hhplus.lecture_apply_service.infrastructure.entity.Lecture;
 import java.util.List;
 import java.util.Optional;
 
 public interface LectureRepository {
 
-    Optional<LectureJpaEntity> findById(Long lectureId);
-    LectureJpaEntity save (LectureJpaEntity lecture);
+    Optional<Lecture> findById(Long lectureId);
+    Lecture save (Lecture lecture);
 
-    Optional<LectureJpaEntity> findByIdxLock(Long lectureId);
+    Optional<Lecture> findByIdxLock(Long lectureId);
 
-    LectureJpaEntity savexLock(LectureJpaEntity lectureJpaEntity);
+    Lecture savexLock(Lecture lectureJpaEntity);
 
-    List<LectureJpaEntity> findAll();
+    List<Lecture> findAll();
 }

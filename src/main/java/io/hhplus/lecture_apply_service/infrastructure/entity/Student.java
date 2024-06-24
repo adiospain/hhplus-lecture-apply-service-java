@@ -13,12 +13,12 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class StudentJpaEntity {
+public class Student {
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<StudentLectureJpaEntity> apply = new HashSet<>();
+    private Set<StudentLecture> apply = new HashSet<>();
 }

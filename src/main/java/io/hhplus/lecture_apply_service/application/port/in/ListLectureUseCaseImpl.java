@@ -3,14 +3,12 @@ package io.hhplus.lecture_apply_service.application.port.in;
 import io.hhplus.lecture_apply_service.common.UseCase;
 import io.hhplus.lecture_apply_service.exception.CustomException;
 import io.hhplus.lecture_apply_service.exception.ErrorCode;
-import io.hhplus.lecture_apply_service.infrastructure.entity.LectureJpaEntity;
+import io.hhplus.lecture_apply_service.infrastructure.entity.Lecture;
 import io.hhplus.lecture_apply_service.infrastructure.repository.LectureRepository;
-import io.hhplus.lecture_apply_service.presentation.dto.res.ApplyLectureAPIResponse;
 import io.hhplus.lecture_apply_service.presentation.dto.res.ListLectureAPIResponse;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @UseCase
@@ -19,7 +17,7 @@ public class ListLectureUseCaseImpl implements ListLectureUseCase{
 
   @Override
   public ListLectureAPIResponse execute() {
-    List<LectureJpaEntity> lectures = lectureRepository.findAll();
+    List<Lecture> lectures = lectureRepository.findAll();
     return Optional.ofNullable(lectures)
         .filter(list -> !list.isEmpty())
         .map(list -> new ListLectureAPIResponse(list))

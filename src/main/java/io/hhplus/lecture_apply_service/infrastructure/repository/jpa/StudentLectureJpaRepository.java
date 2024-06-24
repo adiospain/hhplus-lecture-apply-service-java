@@ -1,15 +1,14 @@
 package io.hhplus.lecture_apply_service.infrastructure.repository.jpa;
 
-import io.hhplus.lecture_apply_service.infrastructure.entity.StudentLectureJpaEntity;
-import jakarta.persistence.LockModeType;
+import io.hhplus.lecture_apply_service.infrastructure.entity.StudentLecture;
+
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
 
-public interface StudentLectureJpaRepository extends JpaRepository<StudentLectureJpaEntity, Long> {
+public interface StudentLectureJpaRepository extends JpaRepository<StudentLecture, Long> {
 
 
   boolean existsByStudentIdAndLectureIdAndEnrollmentIsTrue(Long studentId, Long lectureId);
 
-  List<StudentLectureJpaEntity> findAllByStudentId(Long studentId);
+  List<StudentLecture> findAllByStudentId(Long studentId);
 }

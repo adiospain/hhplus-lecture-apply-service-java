@@ -1,6 +1,6 @@
 package io.hhplus.lecture_apply_service.infrastructure;
 
-import io.hhplus.lecture_apply_service.infrastructure.entity.StudentLectureJpaEntity;
+import io.hhplus.lecture_apply_service.infrastructure.entity.StudentLecture;
 import io.hhplus.lecture_apply_service.infrastructure.repository.StudentLectureRepository;
 import io.hhplus.lecture_apply_service.infrastructure.repository.jpa.StudentLectureJpaRepository;
 import java.util.List;
@@ -14,7 +14,7 @@ public class StudentLectureRepositoryImpl implements StudentLectureRepository {
   private StudentLectureJpaRepository studentLectureRepository;
 
   @Override
-  public StudentLectureJpaEntity save(StudentLectureJpaEntity lecture) {
+  public StudentLecture save(StudentLecture lecture) {
     return studentLectureRepository.save(lecture);
   }
 
@@ -24,7 +24,7 @@ public class StudentLectureRepositoryImpl implements StudentLectureRepository {
   }
 
   @Override
-  public List<StudentLectureJpaEntity> findAllByStudentId(Long studentId) {
+  public List<StudentLecture> findAllByStudentId(Long studentId) {
     return studentLectureRepository.findAllByStudentId(studentId);
   }
 }

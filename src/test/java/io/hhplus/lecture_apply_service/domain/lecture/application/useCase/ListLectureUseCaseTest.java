@@ -9,8 +9,8 @@ import io.hhplus.lecture_apply_service.application.port.in.ListLectureUseCase;
 import io.hhplus.lecture_apply_service.application.port.in.ListLectureUseCaseImpl;
 import io.hhplus.lecture_apply_service.application.port.out.LectureLock;
 import io.hhplus.lecture_apply_service.exception.CustomException;
-import io.hhplus.lecture_apply_service.infrastructure.entity.LectureJpaEntity;
-import io.hhplus.lecture_apply_service.infrastructure.entity.StudentJpaEntity;
+import io.hhplus.lecture_apply_service.infrastructure.entity.Lecture;
+
 import io.hhplus.lecture_apply_service.infrastructure.repository.LectureRepository;
 import io.hhplus.lecture_apply_service.presentation.dto.res.ListLectureAPIResponse;
 import java.time.LocalDateTime;
@@ -20,8 +20,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 public class ListLectureUseCaseTest {
@@ -31,7 +29,7 @@ public class ListLectureUseCaseTest {
 
   private ListLectureUseCase listLectureUseCase = new ListLectureUseCaseImpl(lectureRepository);
 
-  private List<LectureJpaEntity> lectures;
+  private List<Lecture> lectures;
 
   @BeforeEach
   void setUp(){
@@ -45,7 +43,7 @@ public class ListLectureUseCaseTest {
   void listLectures_found(){
     //given
     for (int i=1; i < 35; ++i){
-      LectureJpaEntity lecture = new LectureJpaEntity((long)i, "클린 아키텍처"+i, i-1, LocalDateTime.of(2024,4,27,13,0) ,new HashSet<>());
+      Lecture lecture = new Lecture((long)i, "클린 아키텍처"+i, i-1, LocalDateTime.of(2024,4,27,13,0) ,new HashSet<>());
       lectures.add(lecture);
     }
     when(lectureRepository.findAll()).thenReturn(lectures);

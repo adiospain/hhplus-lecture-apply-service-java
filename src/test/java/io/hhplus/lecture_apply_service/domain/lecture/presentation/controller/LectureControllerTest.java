@@ -5,7 +5,7 @@ import io.hhplus.lecture_apply_service.application.port.in.ApplyLectureUseCase;
 import io.hhplus.lecture_apply_service.application.port.in.ApplyLectureCommand;
 import io.hhplus.lecture_apply_service.application.port.in.EnrolledLectureUseCase;
 import io.hhplus.lecture_apply_service.application.port.in.ListLectureUseCase;
-import io.hhplus.lecture_apply_service.infrastructure.entity.LectureJpaEntity;
+import io.hhplus.lecture_apply_service.infrastructure.entity.Lecture;
 import io.hhplus.lecture_apply_service.presentation.dto.LectureController;
 import io.hhplus.lecture_apply_service.presentation.dto.req.ApplyLectureAPIRequest;
 import io.hhplus.lecture_apply_service.presentation.dto.res.ApplyLectureAPIResponse;
@@ -54,11 +54,11 @@ public class LectureControllerTest {
     @DisplayName("특강 목록 조회")
     void listAllLecturesSuccess() throws Exception{
         //given
-        List<LectureJpaEntity> lectures = new ArrayList<>();
+        List<Lecture> lectures = new ArrayList<>();
 
 
         for (int i = 0; i < 3; ++i){
-            LectureJpaEntity lecture = new LectureJpaEntity();
+            Lecture lecture = new Lecture();
             lecture.setId((long)i);
             lecture.setName("클린 아키텍처"+i);
             lecture.setCapacity(30);
@@ -86,7 +86,7 @@ public class LectureControllerTest {
         boolean applySuccess = true;
         ApplyLectureAPIResponse APIresponse = new ApplyLectureAPIResponse(userId, lectureId, applySuccess);
         //when
-        when(applyLectureUseCase.applyLecture(any(ApplyLectureCommand.class))).thenReturn(APIresponse);
+        when(applyLectureUseCase.execute(any(ApplyLectureCommand.class))).thenReturn(APIresponse);
 
         ApplyLectureAPIRequest request = new ApplyLectureAPIRequest(userId, lectureId);
         mockMvc.perform(post("/lectures/apply")
@@ -97,7 +97,7 @@ public class LectureControllerTest {
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.studentId").value(userId))
                         .andExpect(jsonPath("$.lectureId").value(lectureId))
-                        .andExpect(jsonPath("$.success").value(applySuccess));
+                        .andExpect(jsonPath("$.status").value(applySuccess));
     }
 
     @Test
@@ -108,7 +108,7 @@ public class LectureControllerTest {
         Long lectureId = 100L;
         boolean applySuccess = false;
         ApplyLectureAPIResponse APIresponse = new ApplyLectureAPIResponse(userId, lectureId, applySuccess);
-        when(applyLectureUseCase.applyLecture(any(ApplyLectureCommand.class))).thenReturn(APIresponse);
+        when(applyLectureUseCase.execute(any(ApplyLectureCommand.class))).thenReturn(APIresponse);
 
         //when
         ApplyLectureAPIRequest request = new ApplyLectureAPIRequest(userId, lectureId);
@@ -119,8 +119,7 @@ public class LectureControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.studentId").value(userId))
                 .andExpect(jsonPath("$.lectureId").value(lectureId))
-                .andExpect(jsonPath("$.success").value(applySuccess))
-                .andExpect(jsonPath("$.success").value(applySuccess));
+                .andExpect(jsonPath("$.status").value(applySuccess));
     }
 
     @Test
@@ -136,7 +135,7 @@ public class LectureControllerTest {
         mockMvc.perform(get("/lectures/application/"+studentId)
                 .param("lectureId", "1"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.success").value(true));
+            .andExpect(jsonPath("$.status").value(true));
     }
 
     @Test
@@ -152,6 +151,6 @@ public class LectureControllerTest {
         mockMvc.perform(get("/lectures/application/"+studentId)
                 .param("lectureId", "1"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.success").value(false));
+            .andExpect(jsonPath("$.status").value(false));
     }
 }
