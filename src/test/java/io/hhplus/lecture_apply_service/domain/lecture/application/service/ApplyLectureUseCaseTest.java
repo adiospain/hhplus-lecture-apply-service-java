@@ -25,11 +25,10 @@ import static org.mockito.Mockito.when;
 
 public class ApplyLectureUseCaseTest {
 
-    private final LectureLock lectureLock = Mockito.mock(LectureLock.class);
     private final LectureRepository lectureRepository = Mockito.mock(LectureRepository.class);
     private final StudentRepository studentRepository = Mockito.mock(StudentRepository.class);
     private final StudentLectureRepository studentLectureRepository = Mockito.mock(StudentLectureRepository.class);
-    private final ApplyLectureUseCase applyLectureUseCase = new ApplyLectureUseCaseImpl(lectureLock, lectureRepository, studentRepository, studentLectureRepository);
+    private final ApplyLectureUseCase applyLectureUseCase = new ApplyLectureUseCaseImpl(lectureRepository, studentRepository, studentLectureRepository);
 
     @Test
     @DisplayName("특강 신청 성공")

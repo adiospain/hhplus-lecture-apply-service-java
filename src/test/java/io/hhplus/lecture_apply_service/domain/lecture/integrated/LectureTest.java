@@ -258,6 +258,9 @@ public class LectureTest {
     //then
     latch.await();
     executorService.shutdown();
+    List<StudentLecture> history = studentLectureRepository.findAll();
+    List<StudentLecture> success = history.stream().filter(his->his.getEnrollment() == true).toList();
+    assertThat(success.size()).isEqualTo(lecture.getCapacity());
     assertThat(yes.get()).isEqualTo(lecture.getCapacity());
   }
 
@@ -329,6 +332,9 @@ public class LectureTest {
     //then
     latch.await();
     executorService.shutdown();
+    List<StudentLecture> history = studentLectureRepository.findAll();
+    List<StudentLecture> success = history.stream().filter(his->his.getEnrollment() == true).toList();
+    assertThat(history.size()).isEqualTo(studentNum);
     assertThat(yes.get()).isEqualTo(lecture.getCapacity());
     assertThat(applied.get()).isEqualTo(alreadyApplied);
   }
