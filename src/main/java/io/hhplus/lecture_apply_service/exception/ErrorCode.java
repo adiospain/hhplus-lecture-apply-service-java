@@ -16,7 +16,7 @@ public enum ErrorCode {
     INVALID_TIME(BAD_REQUEST, "특강 신청 기간이 아닙니다."),
 
     //404
-
+    LECTURE_NOT_FOUND(NOT_FOUND, "특강을 찾을 수 없습니다."),
 
     //409
 

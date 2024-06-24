@@ -3,6 +3,7 @@ package io.hhplus.lecture_apply_service.infrastructure;
 import io.hhplus.lecture_apply_service.infrastructure.entity.LectureJpaEntity;
 import io.hhplus.lecture_apply_service.infrastructure.repository.LectureRepository;
 import io.hhplus.lecture_apply_service.infrastructure.repository.jpa.LectureJpaRepository;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -31,5 +32,10 @@ public class LectureRepositoryImpl implements LectureRepository {
   @Override
   public LectureJpaEntity savexLock(LectureJpaEntity lecture) {
     return lectureRepository.savexLock(lecture);
+  }
+
+  @Override
+  public List<LectureJpaEntity> findAll() {
+    return lectureRepository.findAll();
   }
 }
