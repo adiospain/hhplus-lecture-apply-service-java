@@ -34,6 +34,7 @@ import static org.mockito.Mockito.when;
 
 public class ApplyLectureUseCaseTest {
 
+
     private final LectureRepository lectureRepository = Mockito.mock(LectureRepository.class);
     private final StudentRepository studentRepository = Mockito.mock(StudentRepository.class);
     private final StudentLectureRepository studentLectureRepository = Mockito.mock(StudentLectureRepository.class);
@@ -57,7 +58,7 @@ public class ApplyLectureUseCaseTest {
 
         //when
         when(lectureRepository.findByIdxLock(lecture.getId())).thenReturn(Optional.of(lecture));
-        when(studentRepository.findById(student.getId())).thenReturn(Optional.of(student));
+        when(studentRepository.findByIdxLock(student.getId())).thenReturn(Optional.of(student));
         ApplyLectureAPIResponse response = applyLectureUseCase.execute(command);
 
         //then
@@ -79,7 +80,7 @@ public class ApplyLectureUseCaseTest {
 
         when(studentLectureRepository.existsByStudentIdAndLectureIdAndEnrollmentIsTrue(student.getId(), lecture.getId())).thenReturn(true);
         when(lectureRepository.findByIdxLock(lecture.getId())).thenReturn(Optional.of(lecture));
-        when(studentRepository.findById(student.getId())).thenReturn(Optional.of(student));
+        when(studentRepository.findByIdxLock(student.getId())).thenReturn(Optional.of(student));
 
         CustomException studentException = assertThrows(CustomException.class, ()->applyLectureUseCase.execute(command));
         assertThat(studentException.getErrorCode().name()).isEqualTo("ALREADY_APPLIED");
@@ -97,7 +98,7 @@ public class ApplyLectureUseCaseTest {
                 .lectureId(lecture.getId())
                 .build();
         when(lectureRepository.findByIdxLock(lecture.getId())).thenReturn(Optional.of(lecture));
-        when(studentRepository.findById(student.getId())).thenReturn(Optional.of(student));
+        when(studentRepository.findByIdxLock(student.getId())).thenReturn(Optional.of(student));
         when(studentLectureRepository.existsByStudentIdAndLectureIdAndEnrollmentIsTrue(student.getId(), lecture.getId())).thenReturn(false);
 
         //when
@@ -126,7 +127,7 @@ public class ApplyLectureUseCaseTest {
 
         //when
         when(lectureRepository.findByIdxLock(lectureId)).thenReturn(Optional.of(lecture));
-        when(studentRepository.findById(anyLong())).thenAnswer(invocation ->{
+        when(studentRepository.findByIdxLock(anyLong())).thenAnswer(invocation ->{
             long id = invocation.getArgument(0);
             return Optional.of(new Student(id, "정현우"+id, new HashSet<>()));
         });
@@ -226,7 +227,7 @@ public class ApplyLectureUseCaseTest {
                         .studentId(student.getId())
                         .lectureId(lectureId)
                         .build();
-                when(studentRepository.findById(anyLong())).thenReturn(Optional.of(student));
+                when(studentRepository.findByIdxLock(anyLong())).thenReturn(Optional.of(student));
                 applyLectureUseCase.execute(command);
             });
             futures.add(future);

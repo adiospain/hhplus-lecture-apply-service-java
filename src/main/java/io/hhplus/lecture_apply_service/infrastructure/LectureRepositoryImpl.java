@@ -19,20 +19,19 @@ public class LectureRepositoryImpl implements LectureRepository {
     return lectureRepository.findById(lectureId);
   }
 
+
   @Override
   public Lecture save(Lecture lecture) {
     return lectureRepository.save(lecture);
   }
+
+
 
   @Override
   public Optional<Lecture> findByIdxLock(Long lectureId) {
     return lectureRepository.findByIdxLock(lectureId);
   }
 
-  @Override
-  public Lecture savexLock(Lecture lecture) {
-    return lectureRepository.savexLock(lecture);
-  }
 
   @Override
   public List<Lecture> findAll() {

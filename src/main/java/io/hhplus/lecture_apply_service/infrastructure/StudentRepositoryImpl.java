@@ -20,4 +20,14 @@ public class StudentRepositoryImpl implements StudentRepository {
   public Optional<Student> findById(Long studentId) {
     return studentRepository.findById(studentId);
   }
+
+  @Override
+  public Student save(Student student) {
+    return studentRepository.save(student);
+  }
+
+  @Override
+  public Optional<Student> findByIdxLock(Long studentId) {
+    return studentRepository.findByIdxLock(studentId);
+  }
 }

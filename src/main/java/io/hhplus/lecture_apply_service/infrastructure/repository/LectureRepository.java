@@ -11,7 +11,7 @@ public interface LectureRepository {
 
     Optional<Lecture> findByIdxLock(Long lectureId);
 
-    Lecture savexLock(Lecture lectureJpaEntity);
+
 
     List<Lecture> findAll();
 }

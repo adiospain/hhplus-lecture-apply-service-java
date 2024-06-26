@@ -6,13 +6,15 @@ import io.hhplus.lecture_apply_service.infrastructure.repository.jpa.StudentLect
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Repository
 public class StudentLectureRepositoryImpl implements StudentLectureRepository {
 
-  private StudentLectureJpaRepository studentLectureRepository;
+  private final StudentLectureJpaRepository studentLectureRepository;
 
+  @Transactional
   @Override
   public StudentLecture save(StudentLecture lecture) {
     return studentLectureRepository.save(lecture);

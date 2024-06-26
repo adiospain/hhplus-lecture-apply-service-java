@@ -26,6 +26,7 @@ public class ApplyLectureUseCaseImpl implements ApplyLectureUseCase {
     private final StudentRepository studentRepository;
     private final StudentLectureRepository studentLectureRepository;
 
+
     @Transactional
     @Override
     public ApplyLectureAPIResponse execute (ApplyLectureCommand command) {
@@ -50,7 +51,7 @@ public class ApplyLectureUseCaseImpl implements ApplyLectureUseCase {
 
       //수강인원 감소
       lecture.setCapacity(lecture.getCapacity()-1);
-      lectureRepository.savexLock(lecture);
+      lectureRepository.save(lecture);
 
       //수강신청 성공 히스토리 추가
       saveApplyHistory(student,lecture,true);
@@ -72,13 +73,13 @@ public class ApplyLectureUseCaseImpl implements ApplyLectureUseCase {
   }
   private void validateNotAlreadyApplied(Long studentId, Long lectureId) {
     if (studentLectureRepository.existsByStudentIdAndLectureIdAndEnrollmentIsTrue(studentId, lectureId)) {
-      throw new CustomException(ErrorCode.ALREADY_APPLIED);
+      throw new CustomException(ErrorCode.ALREADY_APPLIED, "Student :"+studentId+" Lecture  : "+lectureId);
     }
   }
 
   private Student validateStudent(Long studentId) {
-    return studentRepository.findById(studentId)
-        .orElseThrow(() -> new CustomException(ErrorCode.INVALID_STUDENT_ID));
+    return studentRepository.findByIdxLock(studentId)
+        .orElseThrow(() -> new CustomException(ErrorCode.INVALID_STUDENT_ID, studentId.toString()));
   }
 
   private ApplyLectureAPIResponse handleLectureCapacity(Student student, Lecture lecture) {
