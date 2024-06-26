@@ -8,4 +8,6 @@ public interface StudentLectureRepository {
   boolean existsByStudentIdAndLectureIdAndEnrollmentIsTrue(Long studentId, Long lectureId);
 
   List<StudentLecture> findAllByStudentId(Long studentId);
+
+  List<StudentLecture> findAll();
 }

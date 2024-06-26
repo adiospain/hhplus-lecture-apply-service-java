@@ -22,8 +22,7 @@ public enum ErrorCode {
 
     //500
 
-    ALREADY_APPLIED(BAD_REQUEST, "해당 특강을 이미 수강하고 있습니다."),
-    INVALID_TIME(BAD_REQUEST,"아직 특강 신청 기간이 아닙니다.");
+    ALREADY_APPLIED(BAD_REQUEST, "해당 특강을 이미 수강하고 있습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

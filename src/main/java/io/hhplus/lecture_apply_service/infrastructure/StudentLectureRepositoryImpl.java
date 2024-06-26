@@ -29,4 +29,8 @@ public class StudentLectureRepositoryImpl implements StudentLectureRepository {
   public List<StudentLecture> findAllByStudentId(Long studentId) {
     return studentLectureRepository.findAllByStudentId(studentId);
   }
+
+  public List<StudentLecture> findAll(){
+    return studentLectureRepository.findAll();
+  }
 }
