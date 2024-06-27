@@ -3,6 +3,8 @@ package io.hhplus.lecture_apply_service.domain.lecture.integrated;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -28,6 +30,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -80,7 +83,8 @@ public class LectureTest {
   public void applyLecture_success() throws Exception {
 
     for (int i=1; i < 35; ++i){
-      Lecture lecture = new Lecture((long)i, "클린 아키텍처"+i, i-1, LocalDateTime.of(2024,4,27,13,0) ,new HashSet<>());
+      LocalDateTime localDateTime = LocalDateTime.now();
+      Lecture lecture = new Lecture((long)i, localDateTime, "클린아키텍처", 30, LocalDateTime.of(2024,4,27,13,0), new HashSet<>());
       lectures.add(lecture);
       lectureRepository.save(lecture);
     }
@@ -93,7 +97,7 @@ public class LectureTest {
     Student student = students.get(2);
     Lecture lecture = lectures.get(3);
     boolean applySuccess = true;
-    ApplyLectureAPIRequest request = new ApplyLectureAPIRequest(student.getId(), lecture.getId());
+    ApplyLectureAPIRequest request = new ApplyLectureAPIRequest(student.getId(), lecture.getId().getLectureId(), lecture.getStartAt(), LocalDateTime.now());
 
     //when
     ResultActions resultActions = mockMvc.perform(post("/lectures/apply")
@@ -112,7 +116,9 @@ public class LectureTest {
   public void applyLecture_Fail() throws Exception {
 
     for (int i=1; i < 35; ++i){
-      Lecture lecture = new Lecture((long)i, "클린 아키텍처"+i, i-1, LocalDateTime.of(2024,4,27,13,0) ,new HashSet<>());
+      LocalDateTime localDateTime = LocalDateTime.now();
+      Lecture lecture = new Lecture((long)i, localDateTime, "클린아키텍처", 30, LocalDateTime.of(2024,4,27,13,0), new HashSet<>());
+
       lectures.add(lecture);
       lectureRepository.save(lecture);
     }
@@ -125,7 +131,7 @@ public class LectureTest {
     Student student = students.get(2);
     Lecture lecture = lectures.get(0);
     boolean applySuccess = false;
-    ApplyLectureAPIRequest request = new ApplyLectureAPIRequest(student.getId(), lecture.getId());
+    ApplyLectureAPIRequest request = new ApplyLectureAPIRequest(student.getId(), lecture.getId().getLectureId(), lecture.getStartAt(), LocalDateTime.now());
 
     //when
     ResultActions resultActions = mockMvc.perform(post("/lectures/apply")
@@ -143,7 +149,8 @@ public class LectureTest {
   @DisplayName("수강하는 특강 목록 조회 테스트 - 성공")
   public void listAllLecture_success() throws Exception {
     for (int i=1; i < 35; ++i){
-      Lecture lecture = new Lecture((long)i, "클린 아키텍처"+i, i-1, LocalDateTime.of(2024,4,27,13,0) ,new HashSet<>());
+      LocalDateTime localDateTime = LocalDateTime.now();
+      Lecture lecture = new Lecture((long)i, localDateTime,"클린 아키텍처"+i, i-1, LocalDateTime.of(2024,4,27,13,0) ,new HashSet<>());
       lectures.add(lecture);
       lectureRepository.save(lecture);
     }
@@ -173,7 +180,8 @@ public class LectureTest {
   public void enrolledLecture_success() throws Exception {
     //given
     for (int i=1; i < 35; ++i){
-      Lecture lecture = new Lecture((long)i, "클린 아키텍처"+i, i-1, LocalDateTime.of(2024,4,27,13,0) ,new HashSet<>());
+      LocalDateTime localDateTime = LocalDateTime.now();
+      Lecture lecture = new Lecture((long)i, localDateTime,"클린 아키텍처"+i, i-1, LocalDateTime.of(2024,4,27,13,0) ,new HashSet<>());
       lectures.add(lecture);
       lectureRepository.save(lecture);
     }
@@ -201,15 +209,84 @@ public class LectureTest {
   }
 
   @Test
+  @DisplayName("특강 신청 동시성 테스트 : 수강인원 이후 부터는 실패")
+  void applyLectureServiceConcurrency() throws InterruptedException {
+    //given
+    long studentId = 1L;
+    long lectureId = 10L;
+    int capacity = 30;
+    int trial = 40;
+
+    ExecutorService executorService =Executors.newFixedThreadPool(trial);
+    CountDownLatch latch = new CountDownLatch(trial);
+    List<Future<ApplyLectureAPIResponse>> futures = new ArrayList<>();LocalDateTime localDateTime = LocalDateTime.now();
+    Lecture lecture = new Lecture(lectureId, localDateTime, "클린아키텍처", capacity, LocalDateTime.of(2024,4,27,13,0), new HashSet<>());
+
+    //when
+    when(lectureRepository.findByIdxLock(lecture.getId())).thenReturn(Optional.of(lecture));
+    when(studentRepository.findById(anyLong())).thenAnswer(invocation ->{
+      long id = invocation.getArgument(0);
+      return Optional.of(new Student(id, "정현우"+id, new HashSet<>()));
+    });
+    when(lectureRepository.save(any(Lecture.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+    for (long i = studentId; i < studentId + trial; ++i){
+      ApplyLectureCommand command = ApplyLectureCommand.builder()
+          .studentId(i)
+          .lectureId(lectureId)
+          .startAt(lecture.getStartAt())
+          .requestAt(LocalDateTime.now())
+          .build();
+
+      Future<ApplyLectureAPIResponse> future =
+          executorService.submit(()-> applyLectureUseCase.execute(command));
+      futures.add(future);
+    }
+
+    //then
+    AtomicInteger yes = new AtomicInteger();
+    AtomicInteger no = new AtomicInteger();
+    AtomicInteger applied = new AtomicInteger();
+    futures.stream().forEach(future ->{
+      try {
+        ApplyLectureAPIResponse response = future.get();
+        if (response.status() == true){
+          yes.getAndIncrement();
+        }
+        else {
+          no.getAndIncrement();
+        }
+      } catch (InterruptedException | ExecutionException e) {
+        if (!(((CustomException) e.getCause()).getErrorCode() == ErrorCode.ALREADY_APPLIED)){
+          throw new RuntimeException(e);
+        }
+        else {
+          applied.getAndIncrement();
+        }
+      }
+      finally {
+        latch.countDown();
+      }
+    });
+    latch.await();
+    executorService.shutdown();
+    List<StudentLecture> history = studentLectureRepository.findAll();
+    List<StudentLecture> success = history.stream().filter(his->his.getEnrollment() == true).toList();
+    assertThat(history.size()).isEqualTo(trial);
+    assertThat(yes.get()).isEqualTo(lecture.getCapacity());
+  }
+
+  @Test
   @DisplayName("특강 신청 동시성 테스트 - 성공")
   public void applyLectureConcurrency_success() throws Exception {
     //given
-    for (int i=0; i < 50; ++i){
-      Lecture lecture = new Lecture((long)i+1, "클린 아키텍처"+i, i-1, LocalDateTime.of(2024,4,27,13,0) ,new HashSet<>());
+    for (int i=1; i < 50; ++i){
+      LocalDateTime localDateTime = LocalDateTime.now();
+      Lecture lecture = new Lecture((long)i, localDateTime,"클린 아키텍처"+i, i-1, LocalDateTime.of(2024,4,27,13,0) ,new HashSet<>());
       lectures.add(lecture);
       lectureRepository.save(lecture);
     }
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 1; i < 100; ++i) {
       Student student = new Student((long) i+1, "정현우" + i, new HashSet<>());
       students.add(student);
       studentRepository.save(student);
@@ -224,7 +301,9 @@ public class LectureTest {
     for (int i = 0; i < students.size(); ++i){
       ApplyLectureCommand command = ApplyLectureCommand.builder()
           .studentId(students.get(i).getId())
-          .lectureId(lecture.getId())
+          .lectureId(lecture.getId().getLectureId())
+          .startAt(lecture.getStartAt())
+          .requestAt(LocalDateTime.now())
           .build();
       Future<ApplyLectureAPIResponse> future =
           executorService.submit(()->
@@ -272,7 +351,8 @@ public class LectureTest {
     int lectureNum = 50;
     int alreadyApplied = 12;
     for (int i=0; i < lectureNum; ++i){
-      Lecture lecture = new Lecture((long)i+1, "클린 아키텍처"+i, i-1, LocalDateTime.of(2024,4,27,13,0) ,new HashSet<>());
+      LocalDateTime localDateTime = LocalDateTime.now();
+      Lecture lecture = new Lecture((long)i, localDateTime,"클린 아키텍처"+i, i-1, LocalDateTime.of(2024,4,27,13,0) ,new HashSet<>());
       lectures.add(lecture);
       lectureRepository.save(lecture);
     }
@@ -296,7 +376,8 @@ public class LectureTest {
     for (int i = 0; i < students.size(); ++i){
       ApplyLectureCommand command = ApplyLectureCommand.builder()
           .studentId(students.get(i).getId())
-          .lectureId(lecture.getId())
+          .lectureId(lecture.getId().getLectureId())
+          .requestAt(LocalDateTime.now())
           .build();
       Future<ApplyLectureAPIResponse> future =
           executorService.submit(()->

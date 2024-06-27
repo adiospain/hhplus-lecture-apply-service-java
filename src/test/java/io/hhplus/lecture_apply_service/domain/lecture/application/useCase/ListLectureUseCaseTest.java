@@ -12,6 +12,7 @@ import io.hhplus.lecture_apply_service.exception.CustomException;
 import io.hhplus.lecture_apply_service.infrastructure.entity.Lecture;
 
 import io.hhplus.lecture_apply_service.infrastructure.repository.LectureRepository;
+import io.hhplus.lecture_apply_service.presentation.dto.res.ApplyLectureAPIResponse;
 import io.hhplus.lecture_apply_service.presentation.dto.res.ListLectureAPIResponse;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -43,7 +44,8 @@ public class ListLectureUseCaseTest {
   void listLectures_found(){
     //given
     for (int i=1; i < 35; ++i){
-      Lecture lecture = new Lecture((long)i, "클린 아키텍처"+i, i-1, LocalDateTime.of(2024,4,27,13,0) ,new HashSet<>());
+      LocalDateTime localDateTime = LocalDateTime.now();
+      Lecture lecture = new Lecture((long)i, localDateTime,"클린 아키텍처"+i, i-1, LocalDateTime.of(2024,4,27,13,0) ,new HashSet<>());
       lectures.add(lecture);
     }
     when(lectureRepository.findAll()).thenReturn(lectures);

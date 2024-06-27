@@ -59,7 +59,7 @@ public class LectureControllerTest {
 
         for (int i = 0; i < 3; ++i){
             Lecture lecture = new Lecture();
-            lecture.setId((long)i);
+            lecture.setTmpId((long)i);
             lecture.setName("클린 아키텍처"+i);
             lecture.setCapacity(30);
             lecture.setOpen_at(LocalDateTime.of(2024,4,27,13,i+30));
@@ -84,11 +84,12 @@ public class LectureControllerTest {
         Long userId = 1L;
         Long lectureId = 100L;
         boolean applySuccess = true;
-        ApplyLectureAPIResponse APIresponse = new ApplyLectureAPIResponse(userId, lectureId, applySuccess);
+        LocalDateTime localDateTime = LocalDateTime.now();
+        ApplyLectureAPIResponse APIresponse = new ApplyLectureAPIResponse(userId, lectureId, localDateTime, applySuccess);
         //when
         when(applyLectureUseCase.execute(any(ApplyLectureCommand.class))).thenReturn(APIresponse);
 
-        ApplyLectureAPIRequest request = new ApplyLectureAPIRequest(userId, lectureId);
+        ApplyLectureAPIRequest request = new ApplyLectureAPIRequest(userId, lectureId, localDateTime, LocalDateTime.now());
         mockMvc.perform(post("/lectures/apply")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -107,11 +108,12 @@ public class LectureControllerTest {
         Long userId = 1L;
         Long lectureId = 100L;
         boolean applySuccess = false;
-        ApplyLectureAPIResponse APIresponse = new ApplyLectureAPIResponse(userId, lectureId, applySuccess);
+        LocalDateTime localDateTime = LocalDateTime.now();
+        ApplyLectureAPIResponse APIresponse = new ApplyLectureAPIResponse(userId, lectureId, localDateTime, applySuccess);
         when(applyLectureUseCase.execute(any(ApplyLectureCommand.class))).thenReturn(APIresponse);
 
         //when
-        ApplyLectureAPIRequest request = new ApplyLectureAPIRequest(userId, lectureId);
+        ApplyLectureAPIRequest request = new ApplyLectureAPIRequest(userId, lectureId, localDateTime, LocalDateTime.now());
         mockMvc.perform(post("/lectures/apply")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))

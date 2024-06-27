@@ -6,6 +6,7 @@ import io.hhplus.lecture_apply_service.infrastructure.entity.Lecture;
 import io.hhplus.lecture_apply_service.infrastructure.entity.Student;
 import io.hhplus.lecture_apply_service.infrastructure.entity.StudentLecture;
 import io.hhplus.lecture_apply_service.infrastructure.repository.StudentLectureRepository;
+import io.hhplus.lecture_apply_service.presentation.dto.res.ApplyLectureAPIResponse;
 import io.hhplus.lecture_apply_service.presentation.dto.res.EnrolledLectureAPIResponse;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -42,7 +43,9 @@ public class EnrolledLectureUseCaseTest {
       students.add(student);
     }
     for (int i=1; i < 35; ++i){
-      Lecture lecture = new Lecture((long)i, "클린 아키텍처"+i, i-1, LocalDateTime.of(2024,4,27,13,0) ,new HashSet<>());
+      LocalDateTime localDateTime = LocalDateTime.now();
+
+      Lecture lecture = new Lecture((long)i,localDateTime, "클린 아키텍처"+i, i-1, LocalDateTime.of(2024,4,27,13,0) ,new HashSet<>());
       lectures.add(lecture);
     }
     for (int i = 0; i < 10; ++i){

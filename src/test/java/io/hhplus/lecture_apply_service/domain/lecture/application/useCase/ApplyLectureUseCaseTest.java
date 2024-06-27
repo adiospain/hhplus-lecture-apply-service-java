@@ -6,6 +6,7 @@ import io.hhplus.lecture_apply_service.exception.CustomException;
 import io.hhplus.lecture_apply_service.application.port.in.ApplyLectureCommand;
 import io.hhplus.lecture_apply_service.application.port.out.LectureLock;
 
+import io.hhplus.lecture_apply_service.exception.ErrorCode;
 import io.hhplus.lecture_apply_service.infrastructure.entity.Lecture;
 import io.hhplus.lecture_apply_service.infrastructure.entity.Student;
 import io.hhplus.lecture_apply_service.infrastructure.entity.StudentLecture;
@@ -13,6 +14,7 @@ import io.hhplus.lecture_apply_service.infrastructure.repository.LectureReposito
 import io.hhplus.lecture_apply_service.infrastructure.repository.StudentLectureRepository;
 import io.hhplus.lecture_apply_service.infrastructure.repository.StudentRepository;
 import io.hhplus.lecture_apply_service.presentation.dto.res.ApplyLectureAPIResponse;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -40,25 +42,38 @@ public class ApplyLectureUseCaseTest {
     private final StudentLectureRepository studentLectureRepository = Mockito.mock(StudentLectureRepository.class);
     private final ApplyLectureUseCase applyLectureUseCase = new ApplyLectureUseCaseImpl(lectureRepository, studentRepository, studentLectureRepository);
 
-    private List<Student> students;
-    private List<Lecture> lectures;
+    private List<Student> students = new ArrayList<>();
+    private List<Lecture> lectures = new ArrayList<>();
 
     @Test
     @DisplayName("특강 신청 성공")
     void applyLectureServiceSuccess() {
         //given
+        for (int i=1; i < 35; ++i){
+            LocalDateTime localDateTime = LocalDateTime.now();
+            Lecture lecture = new Lecture((long)i, localDateTime, "클린아키텍처", 30, LocalDateTime.of(2024,4,27,13,0), new HashSet<>());
+            lectures.add(lecture);
+            lectureRepository.save(lecture);
+        }
+        for (int i = 1; i < 40; ++i) {
+            Student student = new Student((long) i, "정현우" + i, new HashSet<>());
+            students.add(student);
+            studentRepository.save(student);
+        }
         Student student = students.get(0);
         Lecture lecture = lectures.get(1); //정원이 1명 남은 특강
 
         ApplyLectureCommand command = ApplyLectureCommand.builder()
             .studentId(student.getId())
-            .lectureId(lecture.getId())
+            .lectureId(lecture.getId().getLectureId())
+            .startAt(lecture.getStartAt())
+            .requestAt(LocalDateTime.now())
             .build();
 
 
         //when
         when(lectureRepository.findByIdxLock(lecture.getId())).thenReturn(Optional.of(lecture));
-        when(studentRepository.findByIdxLock(student.getId())).thenReturn(Optional.of(student));
+        when(studentRepository.findById(student.getId())).thenReturn(Optional.of(student));
         ApplyLectureAPIResponse response = applyLectureUseCase.execute(command);
 
         //then
@@ -70,17 +85,30 @@ public class ApplyLectureUseCaseTest {
     @Test
     @DisplayName("이미 수강한 특강을 다시 신청한 경우")
     void applyLectureAlreadyApplied() {
+        for (int i=1; i < 35; ++i){
+            LocalDateTime localDateTime = LocalDateTime.now();
+            Lecture lecture = new Lecture((long)i, localDateTime, "클린아키텍처", 30, LocalDateTime.of(2024,4,27,13,0), new HashSet<>());
+            lectures.add(lecture);
+            lectureRepository.save(lecture);
+        }
+        for (int i = 1; i < 40; ++i) {
+            Student student = new Student((long) i, "정현우" + i, new HashSet<>());
+            students.add(student);
+            studentRepository.save(student);
+        }
         Student student = students.get(0);
         Lecture lecture = lectures.get(28);
 
         ApplyLectureCommand command = ApplyLectureCommand.builder()
             .studentId(student.getId())
-            .lectureId(lecture.getId())
+            .lectureId(lecture.getId().getLectureId())
+            .startAt(lecture.getStartAt())
+            .requestAt(LocalDateTime.now())
             .build();
 
         when(studentLectureRepository.existsByStudentIdAndLectureIdAndEnrollmentIsTrue(student.getId(), lecture.getId())).thenReturn(true);
         when(lectureRepository.findByIdxLock(lecture.getId())).thenReturn(Optional.of(lecture));
-        when(studentRepository.findByIdxLock(student.getId())).thenReturn(Optional.of(student));
+        when(studentRepository.findById(student.getId())).thenReturn(Optional.of(student));
 
         CustomException studentException = assertThrows(CustomException.class, ()->applyLectureUseCase.execute(command));
         assertThat(studentException.getErrorCode().name()).isEqualTo("ALREADY_APPLIED");
@@ -91,14 +119,27 @@ public class ApplyLectureUseCaseTest {
     void applyLectureServiceFail() {
 
         //given
-        Student student = students.get(0);
+        for (int i=1; i < 35; ++i){
+            LocalDateTime localDateTime = LocalDateTime.now();
+            Lecture lecture = new Lecture((long)i, localDateTime, "클린아키텍처", i-1, LocalDateTime.of(2024,4,27,13,0), new HashSet<>());
+            lectures.add(lecture);
+            lectureRepository.save(lecture);
+        }
+        for (int i = 1; i < 40; ++i) {
+            Student student = new Student((long) i, "정현우" + i, new HashSet<>());
+            students.add(student);
+            studentRepository.save(student);
+        }
+        Student student = students.get(3);
         Lecture lecture = lectures.get(0);
         ApplyLectureCommand command = ApplyLectureCommand.builder()
                 .studentId(student.getId())
-                .lectureId(lecture.getId())
+                .lectureId(lecture.getId().getLectureId())
+            .startAt(lecture.getStartAt())
+            .requestAt(LocalDateTime.now())
                 .build();
         when(lectureRepository.findByIdxLock(lecture.getId())).thenReturn(Optional.of(lecture));
-        when(studentRepository.findByIdxLock(student.getId())).thenReturn(Optional.of(student));
+        when(studentRepository.findById(student.getId())).thenReturn(Optional.of(student));
         when(studentLectureRepository.existsByStudentIdAndLectureIdAndEnrollmentIsTrue(student.getId(), lecture.getId())).thenReturn(false);
 
         //when
@@ -123,11 +164,12 @@ public class ApplyLectureUseCaseTest {
         ExecutorService executorService =Executors.newFixedThreadPool(trial);
         CountDownLatch latch = new CountDownLatch(trial);
         List<Future<ApplyLectureAPIResponse>> futures = new ArrayList<>();
-        Lecture lecture = new Lecture(lectureId, "클린아키텍처", 30, LocalDateTime.of(2024,4,27,13,0), new HashSet<>());
+        LocalDateTime localDateTime = LocalDateTime.now();
+        Lecture lecture = new Lecture(lectureId, localDateTime, "클린아키텍처", 30, LocalDateTime.of(2024,4,27,13,0), new HashSet<>());
 
         //when
-        when(lectureRepository.findByIdxLock(lectureId)).thenReturn(Optional.of(lecture));
-        when(studentRepository.findByIdxLock(anyLong())).thenAnswer(invocation ->{
+        when(lectureRepository.findByIdxLock(lecture.getId())).thenReturn(Optional.of(lecture));
+        when(studentRepository.findById(anyLong())).thenAnswer(invocation ->{
             long id = invocation.getArgument(0);
             return Optional.of(new Student(id, "정현우"+id, new HashSet<>()));
         });
@@ -136,6 +178,8 @@ public class ApplyLectureUseCaseTest {
             ApplyLectureCommand command = ApplyLectureCommand.builder()
                     .studentId(i)
                     .lectureId(lectureId)
+                .startAt(lecture.getStartAt())
+                .requestAt(LocalDateTime.now())
                     .build();
 
             ApplyLectureAPIResponse response = applyLectureUseCase.execute(command);
@@ -148,59 +192,7 @@ public class ApplyLectureUseCaseTest {
         }
     }
 
-    @Test
-    @DisplayName("특강 신청 동시성 테스트 : 31명 부터는 실패")
-    void applyLectureServiceConcurrency() throws InterruptedException {
-        //given
-        long studentId = 1L;
-        long lectureId = 10L;
-        int trial = 40;
 
-        ExecutorService executorService =Executors.newFixedThreadPool(trial);
-        CountDownLatch latch = new CountDownLatch(trial);
-        List<Future<ApplyLectureAPIResponse>> futures = new ArrayList<>();
-        Lecture lecture = new Lecture(lectureId, "클린아키텍처", 30, LocalDateTime.of(2024,4,27,13,0), new HashSet<>());
-
-        //when
-        when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
-        when(studentRepository.findById(anyLong())).thenAnswer(invocation ->{
-            long id = invocation.getArgument(0);
-            return Optional.of(new Student(id, "정현우"+id, new HashSet<>()));
-        });
-        when(lectureRepository.save(any(Lecture.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        for (long i = studentId; i < studentId + trial; ++i){
-            ApplyLectureCommand command = ApplyLectureCommand.builder()
-                    .studentId(i)
-                    .lectureId(lectureId)
-                    .build();
-
-            Future<ApplyLectureAPIResponse> future =
-            executorService.submit(()-> applyLectureUseCase.execute(command));
-            futures.add(future);
-        }
-
-        //then
-        futures.stream().forEach(future ->{
-            try {
-                ApplyLectureAPIResponse response = future.get();
-                System.out.println(response.studentId());
-                if (response.studentId() >= studentId + 30){
-                    assertThat(response.status()).isFalse();
-                }
-                else {
-                    assertThat(response.status()).isTrue();
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-            finally {
-                latch.countDown();
-            }
-        });
-        latch.await();
-        executorService.shutdown();
-    }
 
     @Test
     @DisplayName("특강 신청 동시성 30명")
@@ -208,16 +200,17 @@ public class ApplyLectureUseCaseTest {
 
         long studentId = 21L;
         long lectureId = 10L;
-
+        int capacity = 20;
         int trial = 30;
 
         List<Student> students = new ArrayList<>();
+        LocalDateTime localDateTime = LocalDateTime.now();
         for (long i = studentId; i < studentId + trial; ++i){
             students.add(new Student(i, "정현우"+i, new HashSet<>()));
         }
-        Lecture lecture = new Lecture(lectureId, "클린아키텍처", 0, LocalDateTime.of(2024,4,27,13,0), new HashSet<>());
+        Lecture lecture = new Lecture(lectureId, localDateTime,"클린아키텍처", capacity, LocalDateTime.of(2024,4,27,13,0), new HashSet<>());
 
-        when(lectureRepository.findById(anyLong())).thenReturn(Optional.of(lecture));
+        when(lectureRepository.findByIdxLock(lecture.getId())).thenReturn(Optional.of(lecture));
 
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -225,9 +218,11 @@ public class ApplyLectureUseCaseTest {
             CompletableFuture<Void> future = CompletableFuture.runAsync(()->{
                 ApplyLectureCommand command = ApplyLectureCommand.builder()
                         .studentId(student.getId())
-                        .lectureId(lectureId)
+                        .lectureId(lecture.getId().getLectureId())
+                    .startAt(lecture.getStartAt())
+                    .requestAt(LocalDateTime.now())
                         .build();
-                when(studentRepository.findByIdxLock(anyLong())).thenReturn(Optional.of(student));
+                when(studentRepository.findById(anyLong())).thenReturn(Optional.of(student));
                 applyLectureUseCase.execute(command);
             });
             futures.add(future);
