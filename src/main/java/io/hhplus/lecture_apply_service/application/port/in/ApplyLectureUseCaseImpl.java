@@ -1,6 +1,7 @@
 package io.hhplus.lecture_apply_service.application.port.in;
 
 import io.hhplus.lecture_apply_service.application.port.out.LectureLock;
+import io.hhplus.lecture_apply_service.application.port.out.persistence.LectureId;
 import io.hhplus.lecture_apply_service.infrastructure.entity.Student;
 
 import io.hhplus.lecture_apply_service.common.UseCase;
@@ -31,11 +32,12 @@ public class ApplyLectureUseCaseImpl implements ApplyLectureUseCase {
     @Override
     public ApplyLectureAPIResponse execute (ApplyLectureCommand command) {
       //유효한 특강ID 확인
-      Lecture lecture = validateLecture(command.getLectureId());
+      LectureId lectureId = new LectureId(command.getLectureId(), command.getStartAt());
+      Lecture lecture = validateLecture(lectureId);
       //유효한 학생ID 확인
       Student student = validateStudent(command.getStudentId());
       //이미 수강한 특강인지 확인
-      validateNotAlreadyApplied(student.getId(), command.getLectureId());
+      validateNotAlreadyApplied(student.getId(), lectureId);
 
       //수강 인원 확인
       ApplyLectureAPIResponse response = handleLectureCapacity(student, lecture);
@@ -55,7 +57,7 @@ public class ApplyLectureUseCaseImpl implements ApplyLectureUseCase {
 
       //수강신청 성공 히스토리 추가
       saveApplyHistory(student,lecture,true);
-      return new ApplyLectureAPIResponse(command.getStudentId(), command.getLectureId(), true);
+      return new ApplyLectureAPIResponse(command.getStudentId(), command.getLectureId(), command.getStartAt(),true);
     }
 
   private void saveApplyHistory(Student student, Lecture lecture, boolean enrollment) {
@@ -63,7 +65,7 @@ public class ApplyLectureUseCaseImpl implements ApplyLectureUseCase {
     studentLectureRepository.save(studentLecture);
   }
 
-  private Lecture validateLecture(Long lectureId) {
+  private Lecture validateLecture(LectureId lectureId) {
       Lecture lecture = lectureRepository.findByIdxLock(lectureId)
           .orElseThrow(()-> new CustomException(ErrorCode.INVALID_LECTURE_ID));
       if (LocalDateTime.now().isBefore(lecture.getOpen_at())){
@@ -71,19 +73,19 @@ public class ApplyLectureUseCaseImpl implements ApplyLectureUseCase {
       }
       return lecture;
   }
-  private void validateNotAlreadyApplied(Long studentId, Long lectureId) {
+  private void validateNotAlreadyApplied(Long studentId, LectureId lectureId) {
     if (studentLectureRepository.existsByStudentIdAndLectureIdAndEnrollmentIsTrue(studentId, lectureId)) {
       throw new CustomException(ErrorCode.ALREADY_APPLIED, "Student :"+studentId+" Lecture  : "+lectureId);
     }
   }
 
   private Student validateStudent(Long studentId) {
-    return studentRepository.findByIdxLock(studentId)
+    return studentRepository.findById(studentId)
         .orElseThrow(() -> new CustomException(ErrorCode.INVALID_STUDENT_ID, studentId.toString()));
   }
 
   private ApplyLectureAPIResponse handleLectureCapacity(Student student, Lecture lecture) {
-      return lecture.getCapacity() == 0 ? new ApplyLectureAPIResponse(student.getId(), lecture.getId(), false) : null;
+      return lecture.getCapacity() == 0 ? new ApplyLectureAPIResponse(student.getId(), lecture.getId().getLectureId(), lecture.getStartAt(), false) : null;
   }
 
 
