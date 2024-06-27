@@ -33,7 +33,7 @@ erDiagram
         open_at timestamp "열리는 날짜"
     }
     STUDENT_LECTURE {
-        user_id bigint FK "학생 ID"
+        student_id bigint FK "학생 ID"
         lecture_id bigint FK "특강 ID"
         enrollment bool "수강 여부"
         apply_at timestamp "신청 시간"
