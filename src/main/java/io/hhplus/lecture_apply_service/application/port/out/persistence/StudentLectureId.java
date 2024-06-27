@@ -6,16 +6,16 @@ import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 
 @Embeddable
-public class UserLectureId implements Serializable {
+public class StudentLectureId implements Serializable {
     @Column(name = "student_id")
     private Long studentId;
 
     @Column(name = "lecture_id")
-    private Long lectureId;
-    public UserLectureId() {
+    private LectureId lectureId;
+    public StudentLectureId() {
     }
     // Constructor
-    public UserLectureId (Long studentId, Long lectureId) {
+    public StudentLectureId(Long studentId, LectureId lectureId) {
         this.studentId = studentId;
         this.lectureId = lectureId;
     }

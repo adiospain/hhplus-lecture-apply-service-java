@@ -1,6 +1,7 @@
 package io.hhplus.lecture_apply_service.infrastructure.entity;
 
-import io.hhplus.lecture_apply_service.application.port.out.persistence.UserLectureId;
+import io.hhplus.lecture_apply_service.application.port.out.persistence.StudentLectureId;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class StudentLecture {
     @EmbeddedId
-    private UserLectureId id;
+    private StudentLectureId id;
 
     @ManyToOne
     @JoinColumn(name = "student_id", referencedColumnName = "id", insertable = false, updatable = false)
@@ -28,7 +29,7 @@ public class StudentLecture {
     public StudentLecture(Student student, Lecture lecture, Boolean enrollment){
         this.student = student;
         this.lecture = lecture;
-        this.id = new UserLectureId(student.getId(), lecture.getId());
+        this.id = new StudentLectureId(student.getId(), lecture.getId());
         this.enrollment = enrollment;
     }
 

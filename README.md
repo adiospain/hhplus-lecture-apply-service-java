@@ -27,6 +27,7 @@ erDiagram
     }
     LECTURE {
         id bigint PK "특강 ID"
+        start_at timestamp PK "수업 날짜"
         name varchar "특강 이름"
         capacity int "수강 인원"
         open_at timestamp "열리는 날짜"
