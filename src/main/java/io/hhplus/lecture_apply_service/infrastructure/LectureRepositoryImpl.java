@@ -1,5 +1,6 @@
 package io.hhplus.lecture_apply_service.infrastructure;
 
+import io.hhplus.lecture_apply_service.application.port.out.persistence.LectureId;
 import io.hhplus.lecture_apply_service.infrastructure.entity.Lecture;
 import io.hhplus.lecture_apply_service.infrastructure.repository.LectureRepository;
 import io.hhplus.lecture_apply_service.infrastructure.repository.jpa.LectureJpaRepository;
@@ -15,9 +16,11 @@ public class LectureRepositoryImpl implements LectureRepository {
   private final LectureJpaRepository lectureRepository;
 
   @Override
-  public Optional<Lecture> findById(Long lectureId) {
+  public Optional<Lecture> findById(LectureId lectureId) {
     return lectureRepository.findById(lectureId);
   }
+
+
 
 
   @Override
@@ -25,10 +28,8 @@ public class LectureRepositoryImpl implements LectureRepository {
     return lectureRepository.save(lecture);
   }
 
-
-
   @Override
-  public Optional<Lecture> findByIdxLock(Long lectureId) {
+  public Optional<Lecture> findByIdxLock(LectureId lectureId) {
     return lectureRepository.findByIdxLock(lectureId);
   }
 

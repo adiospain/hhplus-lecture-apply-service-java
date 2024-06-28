@@ -16,10 +16,9 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode
 @Embeddable
 public class LectureId implements Serializable {
-  @Column(name = "lecture_id")
+  @Column(name = "id")
   private Long lectureId;
 
   @Column(name = "start_at")
   private LocalDateTime startAt;
-
 }

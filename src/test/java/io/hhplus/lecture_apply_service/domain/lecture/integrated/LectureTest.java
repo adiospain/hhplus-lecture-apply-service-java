@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.BeanProperty.Std;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.hhplus.lecture_apply_service.application.port.in.ApplyLectureCommand;
 import io.hhplus.lecture_apply_service.application.port.in.ApplyLectureUseCase;
@@ -75,8 +76,6 @@ public class LectureTest {
   @Autowired
   private ObjectMapper objectMapper;
 
-  DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-
 
   @Test
   @DisplayName("특강 신청 테스트 - 성공")
@@ -97,7 +96,7 @@ public class LectureTest {
     Student student = students.get(2);
     Lecture lecture = lectures.get(3);
     boolean applySuccess = true;
-    ApplyLectureAPIRequest request = new ApplyLectureAPIRequest(student.getId(), lecture.getId().getLectureId(), lecture.getStartAt(), LocalDateTime.now());
+    ApplyLectureAPIRequest request = new ApplyLectureAPIRequest(student.getId(), lecture.getId().getLectureId(), lecture.getId().getStartAt(), LocalDateTime.now());
 
     //when
     ResultActions resultActions = mockMvc.perform(post("/lectures/apply")
@@ -117,7 +116,7 @@ public class LectureTest {
 
     for (int i=1; i < 35; ++i){
       LocalDateTime localDateTime = LocalDateTime.now();
-      Lecture lecture = new Lecture((long)i, localDateTime, "클린아키텍처", 30, LocalDateTime.of(2024,4,27,13,0), new HashSet<>());
+      Lecture lecture = new Lecture((long)i, localDateTime, "클린아키텍처", i-1, LocalDateTime.of(2024,4,27,13,0), new HashSet<>());
 
       lectures.add(lecture);
       lectureRepository.save(lecture);
@@ -129,9 +128,9 @@ public class LectureTest {
     }
     //given
     Student student = students.get(2);
-    Lecture lecture = lectures.get(0);
+    Lecture lecture = lectures.get(0); //수강 인원이 0인 특강
     boolean applySuccess = false;
-    ApplyLectureAPIRequest request = new ApplyLectureAPIRequest(student.getId(), lecture.getId().getLectureId(), lecture.getStartAt(), LocalDateTime.now());
+    ApplyLectureAPIRequest request = new ApplyLectureAPIRequest(student.getId(), lecture.getId().getLectureId(), lecture.getId().getStartAt(), LocalDateTime.now());
 
     //when
     ResultActions resultActions = mockMvc.perform(post("/lectures/apply")
@@ -160,8 +159,10 @@ public class LectureTest {
       studentRepository.save(student);
     }
     //given
-    Student student = students.get(2);
-    Lecture lecture = lectures.get(4);
+    Optional<Student> studentOptional = studentRepository.findById(students.get(3).getId());
+    Student student = studentOptional.get();
+    Optional<Lecture> lectureOptional = lectureRepository.findById(lectures.get(5).getId());
+    Lecture lecture = lectureOptional.get();
     StudentLecture studentLecture = new StudentLecture(student, lecture, true);
     studentLectureRepository.save(studentLecture);
 
@@ -179,9 +180,10 @@ public class LectureTest {
   @DisplayName("특강 목록 테스트 - 성공")
   public void enrolledLecture_success() throws Exception {
     //given
-    for (int i=1; i < 35; ++i){
+    for (int i = 1; i < 35; ++i) {
       LocalDateTime localDateTime = LocalDateTime.now();
-      Lecture lecture = new Lecture((long)i, localDateTime,"클린 아키텍처"+i, i-1, LocalDateTime.of(2024,4,27,13,0) ,new HashSet<>());
+      Lecture lecture = new Lecture((long) i, localDateTime, "클린 아키텍처" + i, i - 1,
+          LocalDateTime.of(2024, 4, 27, 13, 0), new HashSet<>());
       lectures.add(lecture);
       lectureRepository.save(lecture);
     }
@@ -202,8 +204,10 @@ public class LectureTest {
       Lecture expectedLecture = lectures.get(i);
       resultActions.andExpect(jsonPath("$.lectures[" + i + "].id").value(expectedLecture.getId()))
           .andExpect(jsonPath("$.lectures[" + i + "].name").value(expectedLecture.getName()))
-          .andExpect(jsonPath("$.lectures[" + i + "].capacity").value(expectedLecture.getCapacity()))
-          .andExpect(jsonPath("$.lectures[" + i + "].open_at").value(expectedLecture.getOpen_at().toString()+":00"));
+          .andExpect(
+              jsonPath("$.lectures[" + i + "].capacity").value(expectedLecture.getCapacity()))
+          .andExpect(jsonPath("$.lectures[" + i + "].open_at").value(
+              expectedLecture.getOpen_at().toString() + ":00"));
       // Add more assertions as needed
     }
   }
@@ -234,7 +238,7 @@ public class LectureTest {
       ApplyLectureCommand command = ApplyLectureCommand.builder()
           .studentId(i)
           .lectureId(lectureId)
-          .startAt(lecture.getStartAt())
+          .startAt(lecture.getId().getStartAt())
           .requestAt(LocalDateTime.now())
           .build();
 
@@ -302,7 +306,7 @@ public class LectureTest {
       ApplyLectureCommand command = ApplyLectureCommand.builder()
           .studentId(students.get(i).getId())
           .lectureId(lecture.getId().getLectureId())
-          .startAt(lecture.getStartAt())
+          .startAt(lecture.getId().getStartAt())
           .requestAt(LocalDateTime.now())
           .build();
       Future<ApplyLectureAPIResponse> future =

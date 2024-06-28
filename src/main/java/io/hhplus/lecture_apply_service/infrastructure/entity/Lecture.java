@@ -18,12 +18,6 @@ public class Lecture {
     @EmbeddedId
     private LectureId id;
 
-    @Column (name = "tmp_id")
-    private Long tmpId;
-
-    @Column (name = "start_at")
-    private LocalDateTime startAt;
-
     @Column (name = "name")
     private String name;
 
@@ -36,13 +30,11 @@ public class Lecture {
     @OneToMany(mappedBy = "lecture", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<StudentLecture> attend = new HashSet<>();
 
-    public Lecture(Long tmpId, LocalDateTime startAt, String name, Integer capacity, LocalDateTime open_at, HashSet attend){
-        this.tmpId = tmpId;
-        this.startAt = startAt;
+    public Lecture(Long lectureId, LocalDateTime startAt, String name, Integer capacity, LocalDateTime open_at, HashSet attend){
         this.name = name;
         this.capacity = capacity;
         this.open_at = open_at;
         this.attend = attend;
-        this.id = new LectureId(tmpId, startAt);
+        this.id = new LectureId(lectureId, startAt);
     }
 }

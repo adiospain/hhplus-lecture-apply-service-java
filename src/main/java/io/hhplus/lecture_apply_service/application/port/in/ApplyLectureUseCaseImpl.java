@@ -32,12 +32,11 @@ public class ApplyLectureUseCaseImpl implements ApplyLectureUseCase {
     @Override
     public ApplyLectureAPIResponse execute (ApplyLectureCommand command) {
       //유효한 특강ID 확인
-      LectureId lectureId = new LectureId(command.getLectureId(), command.getStartAt());
-      Lecture lecture = validateLecture(lectureId);
+      Lecture lecture = validateLecture(new LectureId(command.getLectureId(), command.getStartAt()));
       //유효한 학생ID 확인
       Student student = validateStudent(command.getStudentId());
       //이미 수강한 특강인지 확인
-      validateNotAlreadyApplied(student.getId(), lectureId);
+      validateNotAlreadyApplied(student.getId(), lecture.getId());
 
       //수강 인원 확인
       ApplyLectureAPIResponse response = handleLectureCapacity(student, lecture);
@@ -85,7 +84,8 @@ public class ApplyLectureUseCaseImpl implements ApplyLectureUseCase {
   }
 
   private ApplyLectureAPIResponse handleLectureCapacity(Student student, Lecture lecture) {
-      return lecture.getCapacity() == 0 ? new ApplyLectureAPIResponse(student.getId(), lecture.getId().getLectureId(), lecture.getStartAt(), false) : null;
+      return lecture.getCapacity() == 0 ? new ApplyLectureAPIResponse(student.getId(), lecture.getId()
+          .getLectureId(), lecture.getId().getStartAt(), false) : null;
   }
 
 

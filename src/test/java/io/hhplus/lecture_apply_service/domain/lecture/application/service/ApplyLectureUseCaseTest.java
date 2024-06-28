@@ -40,11 +40,12 @@ public class ApplyLectureUseCaseTest {
                 .studentId(studentId)
                 .lectureId(lectureId)
                 .build();
-        Lecture lecture = new Lecture(lectureId, "클린아키텍처", 30, LocalDateTime.of(2024,4,27,13,0), new HashSet<>());
+        LocalDateTime localDateTime = LocalDateTime.now();
+        Lecture lecture = new Lecture(lectureId, localDateTime, "클린아키텍처", 30, LocalDateTime.of(2024,4,27,13,0), new HashSet<>());
         Student student = new Student(studentId, "정현우", new HashSet<>());
 
         //when
-        when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
+        when(lectureRepository.findById(lecture.getId())).thenReturn(Optional.of(lecture));
         when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
         ApplyLectureAPIResponse response = applyLectureUseCase.execute(command);
 
@@ -62,9 +63,10 @@ public class ApplyLectureUseCaseTest {
                 .studentId(studentId)
                 .lectureId(lectureId)
                 .build();
-        Lecture lecture = new Lecture(lectureId, "클린아키텍처", 30, LocalDateTime.of(2024,4,27,13,0), new HashSet<>());
+        LocalDateTime localDateTime = LocalDateTime.now();
+        Lecture lecture = new Lecture(lectureId, localDateTime, "클린아키텍처", 30, LocalDateTime.of(2024,4,27,13,0), new HashSet<>());
         Student student = new Student(studentId, "정현우", new HashSet<>());
-        when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
+        when(lectureRepository.findById(lecture.getId())).thenReturn(Optional.of(lecture));
         when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
 
         ApplyLectureAPIResponse response = applyLectureUseCase.execute(command);

@@ -5,6 +5,7 @@ import io.hhplus.lecture_apply_service.application.port.in.ApplyLectureUseCase;
 import io.hhplus.lecture_apply_service.application.port.in.ApplyLectureCommand;
 import io.hhplus.lecture_apply_service.application.port.in.EnrolledLectureUseCase;
 import io.hhplus.lecture_apply_service.application.port.in.ListLectureUseCase;
+import io.hhplus.lecture_apply_service.application.port.out.persistence.LectureId;
 import io.hhplus.lecture_apply_service.infrastructure.entity.Lecture;
 import io.hhplus.lecture_apply_service.presentation.dto.LectureController;
 import io.hhplus.lecture_apply_service.presentation.dto.req.ApplyLectureAPIRequest;
@@ -59,7 +60,7 @@ public class LectureControllerTest {
 
         for (int i = 0; i < 3; ++i){
             Lecture lecture = new Lecture();
-            lecture.setTmpId((long)i);
+            lecture.setId(new LectureId((long)i, LocalDateTime.of(2024,4,27,13,i+21)));
             lecture.setName("클린 아키텍처"+i);
             lecture.setCapacity(30);
             lecture.setOpen_at(LocalDateTime.of(2024,4,27,13,i+30));

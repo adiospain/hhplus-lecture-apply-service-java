@@ -1,5 +1,6 @@
 package io.hhplus.lecture_apply_service.infrastructure;
 
+import io.hhplus.lecture_apply_service.application.port.out.persistence.LectureId;
 import io.hhplus.lecture_apply_service.infrastructure.entity.StudentLecture;
 import io.hhplus.lecture_apply_service.infrastructure.repository.StudentLectureRepository;
 import io.hhplus.lecture_apply_service.infrastructure.repository.jpa.StudentLectureJpaRepository;
@@ -20,8 +21,9 @@ public class StudentLectureRepositoryImpl implements StudentLectureRepository {
     return studentLectureRepository.save(lecture);
   }
 
+
   @Override
-  public boolean existsByStudentIdAndLectureIdAndEnrollmentIsTrue(Long studentId, Long lectureId) {
+  public boolean existsByStudentIdAndLectureIdAndEnrollmentIsTrue(Long studentId, LectureId lectureId) {
     return studentLectureRepository.existsByStudentIdAndLectureIdAndEnrollmentIsTrue(studentId, lectureId);
   }
 

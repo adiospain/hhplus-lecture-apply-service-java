@@ -13,15 +13,19 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class StudentLecture {
-    @EmbeddedId
-    private StudentLectureId id;
+
+  @EmbeddedId
+  private StudentLectureId id;
 
     @ManyToOne
     @JoinColumn(name = "student_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Student student;
 
     @ManyToOne
-    @JoinColumn(name = "lecture_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumns({
+        @JoinColumn(name = "lecture_id", referencedColumnName = "id", insertable = false, updatable = false),
+        @JoinColumn(name = "start_at", referencedColumnName = "start_at", insertable = false, updatable = false),
+    })
     private Lecture lecture;
 
     private Boolean enrollment;

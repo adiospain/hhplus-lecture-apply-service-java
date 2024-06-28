@@ -66,7 +66,7 @@ public class ApplyLectureUseCaseTest {
         ApplyLectureCommand command = ApplyLectureCommand.builder()
             .studentId(student.getId())
             .lectureId(lecture.getId().getLectureId())
-            .startAt(lecture.getStartAt())
+            .startAt(lecture.getId().getStartAt())
             .requestAt(LocalDateTime.now())
             .build();
 
@@ -102,7 +102,7 @@ public class ApplyLectureUseCaseTest {
         ApplyLectureCommand command = ApplyLectureCommand.builder()
             .studentId(student.getId())
             .lectureId(lecture.getId().getLectureId())
-            .startAt(lecture.getStartAt())
+            .startAt(lecture.getId().getStartAt())
             .requestAt(LocalDateTime.now())
             .build();
 
@@ -135,7 +135,7 @@ public class ApplyLectureUseCaseTest {
         ApplyLectureCommand command = ApplyLectureCommand.builder()
                 .studentId(student.getId())
                 .lectureId(lecture.getId().getLectureId())
-            .startAt(lecture.getStartAt())
+            .startAt(lecture.getId().getStartAt())
             .requestAt(LocalDateTime.now())
                 .build();
         when(lectureRepository.findByIdxLock(lecture.getId())).thenReturn(Optional.of(lecture));
@@ -178,7 +178,7 @@ public class ApplyLectureUseCaseTest {
             ApplyLectureCommand command = ApplyLectureCommand.builder()
                     .studentId(i)
                     .lectureId(lectureId)
-                .startAt(lecture.getStartAt())
+                .startAt(lecture.getId().getStartAt())
                 .requestAt(LocalDateTime.now())
                     .build();
 
@@ -219,7 +219,7 @@ public class ApplyLectureUseCaseTest {
                 ApplyLectureCommand command = ApplyLectureCommand.builder()
                         .studentId(student.getId())
                         .lectureId(lecture.getId().getLectureId())
-                    .startAt(lecture.getStartAt())
+                    .startAt(lecture.getId().getStartAt())
                     .requestAt(LocalDateTime.now())
                         .build();
                 when(studentRepository.findById(anyLong())).thenReturn(Optional.of(student));
